@@ -1,0 +1,290 @@
+1.
+snap > gzip
+3.
+check hadoop file why not sort
+4.
+check sort
+5.
+not need to repartition
+6.
+3 batch
+7.
+full day
+8.
+srcip dstip srcip_num dstip_num
+9.
+tmp disk
+10.
+excutor
+
+------------------------------------------------------------
+
+64.1 G  /HDS_VOL_HIVE/FWCDR/start_date=20200723
+
+/HDS_VOL_TMP/el_oneday/get_pkey
+
+/opt/tmp/el/test/test_min_max/oneday
+------------------------------------------------------------
+snap > gzip
+not need to repartition
+3 batch
+srcip dstip srcip_num dstip_num
+tmp disk
+excutor
+full day
+'spark.executor.instances',10
+kevin paper
+
+------------------------------------------------------------
+              .repartition(1)\
+    #          .sortWithinPartitions("pkey")
+
+         .write.save("maprfs:///HDS_VOL_TMP/test_ka/t2",mode='append',compression='gzip',partitionBy="pkey")
+[Yesterday 5:28 PM] Kevin Ou
+        .config('spark.executor.instances',25) \
+------------------------------------------------------------
+partition by 
+repartition
+sortwithpartition
+group by
+row group size
+
+.repartition(3,["pkey","srcip_num"])
+tell barry
+
+    df = spark.sql("select substr(rowkey,9,3) as pkey,ts,srcip,dstip,add,\
+                           concat(lpad(substring_index(srcip,'.',1),3,'0'),\
+                                  lpad(substring_index(substring_index(srcip,'.',2),'.',-1),3,'0'),\
+                                  lpad(substring_index(substring_index(srcip,'.',3),'.',-1),3,'0'),\
+                                  lpad(substring_index(srcip,'.',-1),3,'0')) as srcip_num,\
+                           concat(lpad(substring_index(dstip,'.',1),3,'0'),\
+                                  lpad(substring_index(substring_index(dstip,'.',2),'.',-1),3,'0'),\
+                                  lpad(substring_index(substring_index(dstip,'.',3),'.',-1),3,'0'),\
+                                  lpad(substring_index(dstip,'.',-1),3,'0')) as dstip_num\
+                    from fwcdr")\
+
+------------------------------------------------------------
+split function
+rdd python def
+spark sql
+------------------------------------------------------------
+
+4041
+4042
+4040
+18080
+8088
+------------------------------------------------------------
+https://spark.apache.org/docs/2.3.0/api/sql/search.html?q=long
+
+
+console  running status 
+or jindutiao
+
+
+------------------------------------------------------------
+
+mapr client
+bigdataetl02 no
+------------------------------------------------------------
+
+[Yesterday 10:53 AM] Kevin Ou
+    @ eloise try to submit with  --conf spark.ui.port=8888   when firewall still not ready
+port opened. can use 4040 now
+
+------------------------------------------------------------
+dataframe cast
+spark sql cast
+
+
+------------------------------------------------------------
+paralism
+ultimate -n 
+
+java heap space
+memory driver excutor
+free -g
+core
+'spark.driver.maxResultSize','4G'
+------------------------------------------------------------
+/tmp/spark-fb70111f-a3a1-471a-ab6e-87de97af334b
+
+------------------------------------------------------------
+spark.executor.memoryOverhead
+
+
+
+
+spark.driver.memoryOverhead
+spark.executor.memoryOverhead
+
+
+------------------------------------------------------------
+
+Determine the maximum size of the data the Spark application will handle. Make an estimate of the size based on the maximum of the size of input data, the intermediate data produced by transforming the input data and the output data produced further transforming the intermediate data. If the initial estimate is not sufficient, increase the size slightly, and iterate until the memory errors subside.
+
+Make sure that the HDInsight cluster to be used has enough resources in terms of memory and also cores to accommodate the Spark application. This can be determined by viewing the Cluster Metrics section of the YARN UI of the cluster for the values of Memory Used vs. Memory Total and VCores Used vs. VCores Total.
+
+
+add cores with executor
+deduce instance
+
+spark.sql.shuffle.partitions
+
+------------------------------------------------------------
+[('spark.executor.memory','240G'),\
+                                                   ('spark.driver.maxResultSize','4G'),\
+                                                   ('spark.driver.memory','50G'),\
+                                                   ('spark.sql.shuffle.partitions',100),\
+                                                   ('spark.eventLog.dir','/app/HDSDATA/SPK_HS_LOG/'),\
+                                                   ('spark.driver.cores','30')\
+                                                        ])
+
+------------------------------------------------------------
+
+sc = SparkContext(conf=conf)
+
+spark.executor.instances
+
+'spark.default.parallelism',100
+
+https://webcache.googleusercontent.com/search?q=cache:RBtCtKP6S6QJ:https://www.zybuluo.com/xiaop1987/note/102894+&cd=1&hl=zh-CN&ct=clnk&gl=hk
+
+
+
+------------------------------------------------------------
+every 5 min free -g to log to check
+------------------------------------------------------------
+'spark.eventLog.dir','/app/HDSDATA/SPK_HS_LOG/'
+history server
+------------------------------------------------------------
+SparkSubmit --conf spark.driver.memory=240G --executor-memory 240G 256.py
+driver>executor
+2 120G driver
+
+------------------------------------------------------------
+
+executor memeory  = all task = 240 g (standalone)
+and clustor
+
+------------------------------------------------------------
+(base) [hdsbat@bigdataetl02 eloisewu]$ pyspark
+df =spark.read.parquet("file:///app/HDSDATA/SPK_OUTPUT/el_oneday/*/*parquet")
+>>> df.count()
+3382605054  
+/app/HDSDATA/SPK_OUTPUT/el_oneday
+-----------------------------
+number of output rows: 998,760,095
+
+-----------------------------
+bigdataetl01 hive的h_fw_cdr 
+select count(*) from h_fw_cdr where start_date=20200723
+OK
+3382605054
+Time taken: 210.589 seconds, Fetched: 1 row(s)
+-----------------------------
+
+ du - sh . =  du -sh 
+ du -sh *
+
+-----------------------------
+spark-submit --master local[*] 256.py 
+
+zcat * | wc -l 
+
+-----------------------------
+1.txt remove
+
+-----------------------------
+kevin paper
+-----------------------------
+linux split parallism
+-----------------------------
+check num true or not in hive not zcat * | wc -ls
+-----------------------------
+history server log can't find
+-----------------------------
+execute plan
+-----------------------------
+echo '\n'
+echo "\n"
+echo "\\n"
+echo " "
+-----------------------------
+256.py + log.ksh together run
+-----------------------------
+SPK_LOCAL_TMP 的size
+ memory
+run time
+-----------------------------
+parquet meta
+copy /opt/mapr copy 
+or copy back qu bigdatamr10
+
+-----------------------------
+start-all can run cluster mode 
+need to set spark master to runjob
+
+
+-----------------------------
+
+-----------------------------
+
+-----------------------------
+
+
+-----------------------------
+
+-----------------------------
+
+-----------------------------
+
+-----------------------------
+
+-----------------------------
+
+-----------------------------
+
+-----------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

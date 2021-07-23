@@ -1,0 +1,150 @@
+
+
+
+
+
+
+
+
+before 20
+
+
+
+
+
+
+ 
+ 
+ 
+select * from (
+select row_number() over(order by SHK_TIER) row_num,decode(RNK_SUB_NATURE,0,ptg,round(to_number('0'||ptg),2)) as ptg,DISPLAY_NATURE 
+from MIG_ADW.calc_tmp_table_4 where RNK_NATURE = 1 and RNK_SUB_NATURE = 0
+)pivot (max(ptg) for row_num in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27))
+union all
+select * from (
+select row_number() over(order by SHK_TIER) row_num,decode(RNK_SUB_NATURE,0,ptg,round(to_number('0'||ptg),2)) as ptg,DISPLAY_NATURE 
+from MIG_ADW.calc_tmp_table_4 where RNK_NATURE = 1 and RNK_SUB_NATURE = 1
+)pivot (max(ptg) for row_num in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27))
+union all
+select * from (
+select row_number() over(order by SHK_TIER) row_num,decode(RNK_SUB_NATURE,0,ptg,round(to_number('0'||ptg),2)) as ptg,DISPLAY_NATURE 
+from MIG_ADW.calc_tmp_table_4 where RNK_NATURE = 1 and RNK_SUB_NATURE = 2
+)pivot (max(ptg) for row_num in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27))
+union all
+select * from (
+select row_number() over(order by SHK_TIER) row_num,decode(RNK_SUB_NATURE,0,ptg,round(to_number('0'||ptg),2)) as ptg,DISPLAY_NATURE 
+from MIG_ADW.calc_tmp_table_4 where RNK_NATURE = 1 and RNK_SUB_NATURE = 3
+)pivot (max(ptg) for row_num in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27))
+
+
+
+
+select * from (
+
+with tbl as (
+    Select
+             h.batch_id
+            ,h.shk_tier
+            ,decode(h.ru_plan_mix_nature,' ','UNMAP',h.ru_plan_mix_nature)ru_plan_mix_nature
+            ,decode(h.ru_plan_mix_sub_nature,' ','UNMAP',h.ru_plan_mix_sub_nature)ru_plan_mix_sub_nature
+            ,count(h.subr_num) cnt_sub_nature                      
+         from mig_adw.SHKDP_RPT_h h
+         where h.cl_hit like 'HIT%'
+         group by h.batch_id
+                 ,h.shk_tier
+                 ,h.ru_plan_mix_nature
+                 ,h.ru_plan_mix_sub_nature
+)
+select 
+       ttg.ru_plan_mix_nature
+      ,ttg.ru_plan_mix_sub_nature
+      ,ttg.rnk_nature
+      ,ttg.rnk_sub_nature
+      ,decode(label_type,'NATURE_HEADER',ttg.ru_plan_mix_nature,ttg.ru_plan_mix_sub_nature) display_nature
+      ,ttg.batch_id
+      ,ttg.shk_tier      
+      ,decode(rnk_sub_nature,0,' ',nvl(tt.ptg,0)) ptg
+from(----- prepare the label order---     
+        select distinct
+           tg.batch_id
+          ,'NATURE_HEADER' label_type  
+          ,tg.ru_plan_mix_nature
+          ,' ' as ru_plan_mix_sub_nature
+          ,dense_rank()over (partition by tg.batch_id order by tg.ru_plan_mix_nature) rnk_nature
+          ,0 rnk_sub_nature     
+          ,tmp.shk_tier
+     from tbl tg,(select distinct shk_tier from  mig_adw.SHKDP_RPT_h union select 'TOTAL' from dual) tmp
+    union all 
+    select distinct
+           tg.batch_id
+          ,'NATURE_DTL' label_type
+          ,tg.ru_plan_mix_nature
+          ,tg.ru_plan_mix_sub_nature
+          ,dense_rank()over (partition by tg.batch_id order by tg.ru_plan_mix_nature) rnk_nature
+          ,dense_rank()over (partition by tg.batch_id ,tg.ru_plan_mix_nature order by tg.ru_plan_mix_nature,tg.ru_plan_mix_sub_nature) rnk_sub_nature     
+          ,tmp.shk_tier
+     from tbl tg,(select distinct shk_tier from  mig_adw.SHKDP_RPT_h union select 'TOTAL' from dual) tmp
+     ) ttg
+left outer join(------ Counting the detail              
+  select   t.batch_id
+            ,t.shk_tier
+            ,t.ru_plan_mix_nature
+            ,t.ru_plan_mix_sub_nature
+            ,t.cnt_sub_nature / sum(t.cnt_sub_nature) over(partition by t.batch_id,t.shk_tier) as ptg
+    from tbl t
+    union all  
+    select   distinct t.batch_id
+            ,'TOTAL'  as shk_tier
+            ,t.ru_plan_mix_nature
+            ,t.ru_plan_mix_sub_nature            
+            ,sum(t.cnt_sub_nature) over (partition by t.batch_id,t.ru_plan_mix_nature,t.ru_plan_mix_sub_nature)   
+            / sum(t.cnt_sub_nature) over(partition by t.batch_id) as ptg
+    from tbl t               
+ )tt
+ on ttg.label_type='NATURE_DTL' and ttg.ru_plan_mix_nature =tt.ru_plan_mix_nature and ttg.ru_plan_mix_sub_nature = tt.ru_plan_mix_sub_nature
+    and ttg.shk_tier = tt.shk_tier
+ order by ttg.rnk_nature,ttg.rnk_sub_nature,ttg.shk_tier
+ 
+) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

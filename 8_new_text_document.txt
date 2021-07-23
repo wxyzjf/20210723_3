@@ -1,0 +1,117 @@
+
+
+X_BM_COMM_RPT_ICT_EXCOST
+
+
+/opt/etl/prd/etl/APP/ADW/Y_BM_COMM_RPT_ICT_EXCOST/bin/y_bm_comm_rpt_ict_excost0010.pl
+--------------------------------------------------------------------------------------------------
+
+/opt/etl/prd/etl/APP/USR/X_BM_COMM_RPT_ICT_EXCOST/bin/x_bm_comm_rpt_ict_excost0010.pl
+
+sqlplus /@$TDPID
+insert into prd_etl.etl_src_File(JOB_NAME,SYS_NAME,FILENAME_MASK,FILENAME_DATE_FORMAT,DATA_PATH,
+DATE_OFFSET,MONTH_OFFSET,
+CTRL_FILE_MASK,CTRL_FILE_OFFSET,CTRL_FILE_DATE_FORMAT,FILE_LOCATE_TYPE,
+CHECK_EA_FAIL_DIR_FLG,AS_OF_DATE_DETERMINE_METH,CHECK_ZERO_FILE_SIZE,LAST_PROCESS_STAT)
+values('X_BM_COMM_RPT_ICT_EXCOST','USR','SMC_Resell_Order_*.xls','%Y%m%d','/opt/etl/filein/tmp/el',
+0,0,
+' ',0,'%Y%m%d','copy',
+'N','T','N','C');
+commit;
+
+sqlplus /@$TDPID
+delete prd_etl.etl_received_file where etl_job='X_BM_COMM_RPT_ICT_EXCOST';
+update prd_etl.etl_job set last_jobstatus='Ready' where etl_job = 'X_BM_COMM_RPT_ICT_EXCOST';
+update prd_etl.etl_job set last_txdate=TO_DATE('2020-07-09','YYYY-MM-DD') where etl_job = 'X_BM_COMM_RPT_ICT_EXCOST';
+update prd_etl.etl_src_file set last_process_start_ts=null where JOB_NAME='X_BM_COMM_RPT_ICT_EXCOST';
+
+commit;
+touch /opt/etl/prd/etl/preprocess/USR/rerun/x_bm_comm_rpt_ict_excost.rerun.20200710
+
+
+/opt/etl/filein/tmp/el/X_BM_COMM_RPT_ICT_EXCOST
+
+--------------------------------------------------------------------------------------------------
+
+
+/opt/etl/prd/etl/preprocess/USR/script/X_BM_COMM_RPT_ICT_EXCOST.ksh
+/opt/etl/prd/etl/preprocess/USR/script/x_bm_comm_rpt_ict_excost_01.pl
+/opt/etl/prd/etl/preprocess/USR/script/x_bm_comm_rpt_ict_excost_02.pl
+
+
+--------------------------------------------------------------------------------------------------
+
+
+ksh X_BM_COMM_RPT_ICT_EXCOST.ksh /opt/etl/prd/etl/preprocess/USR/script/el/02/IN /opt/etl/prd/etl/preprocess/USR/script/el/02/OUT
+
+--------------------------------------------------------------------------------------------------
+NO:
+
+  falg_file
+  order_type
+  Extra_Cost
+  subr_num
+
+load all col
+order_type:
+
+logic:
+b job:::   order_type = 'New'
+b job:::   group by subr_num then sum(extra_cost)
+
+   a,b,c,d  aaa
+   a        aaa
+subr_num/extra_cost / round
+
+
+b job:::   if extra_cost is not number,assign $0
+
+
+(select  '44335953873' subr_Num from dual)bm, 
+(select ',44325756083,44325756282,44328035324,44335953872,44335953873,44335953873123457,44335967454,44335967455, 44335967478,44335967479, 44335967480,44335967481, 44337068292' 
+subr_NUM_list,100 amt from dual) ext
+where instr(','||ext.subr_NUM_list||','||,bm.subr_num )>0
+
+cross join?
+
+
+
+
+
+
+update mig_adw.X_BM_COMM_RPT_ICT_EXCOST 
+set extra_cost = to_number(nvl2(translate(extra_cost, '/1234567890.', '\'), '0', extra_cost))
+
+
+
+select a.subr_num,b.EXTRA_COST from (
+select '44325756282' as subr_num from dual 
+) a 
+left outer join mig_adw.X_BM_COMM_RPT_ICT_EXCOST b
+on instr(','||replace(b.subr_num,' ','')||',',','||a.subr_num||',')>0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,197 @@
+CREATE TABLE `t_sreward`(
+   Subr_Num  string,
+   Age_Range  string,
+   Gender  string,
+   Register_Address_District  string,
+   Current_SHK_Plan_Group  string,
+   Free_Data_Entitlement  string)
+PARTITIONED BY ( 
+  part_key string)
+ROW FORMAT DELIMITED 
+  FIELDS TERMINATED BY '|' 
+LOCATION
+  'maprfs:/HDS_VOL_TMP/el'
+
+Subr_Num|Age_Range|Gender|Register_Address_District|Current_SHK_Plan_Group|Free_Data_Entitlement
+
+
+hadoop fs -ls /HDS_VOL_TMP/smcin/part_key=20200720
+
+mode='append'
+cross join inner join 
+Subr_Num
+
+661234315  688819
+select a.subr_num from smcin a
+left outer join t_sreward b
+on a.subr_num = b.subr_num
+   and a.part_key=20200720
+   and b.part_key=20200720
+limit 10;
+
+select a.subr_num 
+(select tmpa.subr_num from smcin tmpa where tmpa.part_key=20200720)a
+left outer join t_sreward b
+on a.subr_num = b.subr_num
+   and b.subr_num is not null
+limit 10;
+
+alter table t_sreward add if not exists partition (part_key='20200720');
+alter table t_sreward drop partition (part_key='20200721');
+load data LOCAL inpath '/app/HDSBAT/cvtdata/reload/unload_bp_s_reward_subr_list_SHK_Mall.dat.20200720' 
+into table t_sreward partition(part_key=20200720);
+
+insert overwrite 
+  directory '/HDS_VOL_TMP/ic/adaptor_5g_by_day_<20200601>'
+  row format delimited fields terminated by ','
+select 
+  msisdn,
+  service_name,
+  timeperiod,
+  part_key
+
+hive part
+
+
+
+
+
+password safe
+
+
+review the fw job
+
+
+
+
+
+
+
+sftp adwbat@etl06
+
+get passwordsafe
+
+cd /opt/etl/output/RPT/U_UNLOAD_BP_S_REWARD_SUBR_LIST
+
+test to sftp adwftp
+
+map by pkey
+
+
+/app/HDSBAT/cvtdata/reload
+
+/HDS_VOL_HIVE/smcin/part_key=20200720
+
+
+hadoop fs -mkdir maprfs://bigdatamr08-10g:7222/tmp/el/smcin/part_key=20200720
+hadoop fs -chmod 777 maprfs://bigdatamr08-10g:7222/tmp/el/smcin/part_key=20200720
+hadoop distcp /HDS_VOL_HIVE/smcin/part_key=20200720/* maprfs://bigdatamr08-10g.hksmartone.com/tmp/el/smcin/part_key=20200720
+
+
+[2:23 AM] Kevin Ou
+    Let process following job together
+?[2:23 AM] Kevin Ou
+    
+
+1)         Please make a test on  bigdataetl01 (old cluster.Spark too old .use hive first). Filiter smcin where subr_num in sreward_subr_info.
+
+
+
+Sreward_Subr_info
+
+/opt/etl/output/RPT/U_UNLOAD_BP_S_REWARD_SUBR_LIST/unload_bp_s_reward_subr_list_SHK_Mall.dat.20200720
+
+
+
+Smcin
+
+/HDS_VOL_HIVE/SMCIN with part_key20200720 
+
+
+
+2) Test in bigdatamr08-10 with spark 
+
+?[2:23 AM] Kevin Ou
+    try join billion with million table
+
+
+
+
+
+
+/app/HDSBAT/cvtdata/reload [59]> df -kh .
+Filesystem                  Size  Used Avail Use% Mounted on
+/app/HDSBAT/cvtdata/reload [61]> hadoop fs -du -h /HDS_VOL_HIVE/smcin/part_key=20200720                   
+9.8 G  /HDS_VOL_HIVE/smcin/part_key=20200720/SMCIN_20200720_20200720145019_01_proc_1.gz
+9.8 G  /HDS_VOL_HIVE/smcin/part_key=20200720/SMCIN_20200720_20200720145036_01_proc_2.gz
+5.7 G  /HDS_VOL_HIVE/smcin/part_key=20200720/SMCIN_20200720_20200721181005_01_proc_1.gz
+5.7 G  /HDS_VOL_HIVE/smcin/part_key=20200720/SMCIN_20200720_20200721181005_01_proc_2.gz
+3.0 G  /HDS_VOL_HIVE/smcin/part_key=20200720/SMCIN_20200720_20200721212414_01_proc_1.gz
+3.0 G  /HDS_VOL_HIVE/smcin/part_key=20200720/SMCIN_20200720_20200721212428_01_proc_2.gz
+
+
+
+
+chomd 777
+hadoop fs cp directory
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

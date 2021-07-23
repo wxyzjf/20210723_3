@@ -1,0 +1,271 @@
+Hi,Rick
+            Please check the size for following view ‘s table per daily. User plan to load into mapr.
+We may create unload job in adw and  one loading job in bigdataetl01 for loading. Please lead Eloise for development.
+
+Hi,Eloise
+            Please know the case is assigned to you . thanks
+
+
+
+
+Hi Kevin, 
+
+Please arrange to create a daily job to load the following data from DW to MapR.  Thanks. 
+
+-       vw_idp_call_log_details
+-       vw_idp_familypln_day_data_usg
+-       VW_IDP_FAMILYPLN_MON_DATA_USG
+-       vw_idp_postpd_usg_patt_hist
+-       vw_idp_postpd_usg_patt_hist_m
+
+select * from all_views where view_name like '%VW_IDP%';
+
+prd_adw.IDP_CALL_LOG_DETAILS; --124.9/434  =294.7M per day
+mig_adw.IDP_FAMILYPLN_DAY_DATA_USG; --4.6/582  =8M per day
+mig_adw.IDP_POSTPD_USG_PATT_HIST; --51/459 =113.8M per day
+prd_adw.PRF_SUBR_INFO; --9/167 =55.2M per trx_month
+
+[上午11:20] Kevin Ou
+    select * from all_views where view_name like '%VW_IDP%';
+
+
+/opt/etl/prd/etl/APP/RPT/U_IDP_MAPR_UNLOAD/bin
+/opt/etl/prd/etl/APP/RPT/Z_IDP_MAPR_UNLOAD/bin/z_idp_mapr_unload0010.pl
+
+/opt/etl/output/RPT/U_IDP_MAPR_UNLOAD
+/opt/etl/output/RPT/Z_IDP_MAPR_UNLOAD/u_idp_mapr_unload_20200524.txt.gz
+
+/opt/etl/prd/etl/auto_gen/u_idp_mapr_unload0010_sqlcmd.sql
+
+/app/HDSBAT/reload/IDP/dw_load_idp_mapr.sh
+
+/app/HDSBAT/cvtdata/IDP
+/app/HDSBAT/input/IDP
+
+
+-rw-r--r-- 1 adwbat dstage 1856032886 May 27 14:36 vw_idp_call_log_details_20200518.txt
+-rw-r--r-- 1 adwbat dstage   18286607 May 27 14:37 vw_idp_familypln_day_data_usg_20200518.txt
+-rw-r--r-- 1 adwbat dstage   19743348 May 27 14:37 vw_idp_familypln_mon_data_usg_20200518.txt
+-rw-r--r-- 1 adwbat dstage        169 May 27 14:37 vw_idp_postpd_usg_patt_hist_20200518.txt
+
+
+sftp adwftp@etl06
+ftp941abcd
+
+
+
+function getfile_sftp {
+  ftpsvc=$1
+  ftpacc=$2
+  srcfpath=$3
+  srcfname=$4
+  dstfpath=$5
+  echo "Start to get file from $ftpsvc:$srcfpath/$srcfname"|tee -a $LOGFILE
+  if [ $# -lt 5 ];then
+        echo "Missing paramter for sftp file script.(ftpsvc ftpacc srcfpath srcfname dstfpath)"
+        exit 99
+  fi
+  chgdir $dstfpath
+  lftp sftp://$ftpsvc  -u $ftpacc <<FOftp
+        set ftp:ssl-allow true
+        #set ftp:ssl-force true
+        set ftp:ssl-protect-data true
+        set ftp:ssl-protect-list true
+        set ftps:initial-prot
+        set xfer:clobber on
+        cd $srcfpath
+        mget $srcfname
+        quit
+FOftp
+  if [ ! -f $dstfpath/$srcfname ]; then
+        echo "Failed to sftp file from src($ftpsvc:$srcfpath/$srcfname)"|tee -a $LOGFILE
+        exit 99
+  else
+        echo "sFtp $srcfname complete" |tee -a $LOGFILE
+  fi
+}
+
+FTP_FROM_HOST=etl06
+FTP_FROM_ACCT=adwftp
+FTP_FROM_PASS=ftp941abcd
+FTP_FROM_PATH=/opt/etl/output/RPT/Z_IDP_MAPR_UNLOAD
+FTP_FROM_NAME=u_idp_mapr_unload_20200524.txt.gz
+DEST_PATH=/app/HDSBAT/reload/IDP
+
+
+/adwftp/output/RPT/Z_IDP_MAPR_UNLOAD
+
+
+
+
+CREATE TABLE `idp_mapr`(
+   CUST_ID  string,
+   CUST_NUM  string,
+   SUBR_NUM  string,
+   A_NUMBER  string,
+   CALL_START_DATE  string,
+   CALL_START_TIME  string,
+   CALL_END_DATE  string,
+   CALL_END_TIME  string,
+   CALL_DURATION  string,
+   DIALED_DIGITS  string,
+   ORGN_OPERATOR_CODE  string,
+   ORGN_OPERATOR_GRP  string,
+   DSTN_OPERATOR_CODE  string,
+   DSTN_OPERATOR_GRP  string,
+   X_CO_ORGN_CELL  string,
+   Y_CO_ORGN_CELL  string,
+   X_CO_TERM_CELL  string,
+   Y_CO_TERM_CELL  string,
+   RANAP_CAUSE_CD  string,
+   DISCONNECT_PARTY  string,
+   ORIGIN_SITE_NAME  string,
+   TERM_SITE_NAME  string,
+   HANDSET_BRAND  string,
+   HANDSET_MODEL  string,
+   HANDSET_OS  string,
+   IMEI  string,
+   BSS_MAP  string,
+   RATE_PLAN_CODE  string,
+   DATA_VOLUME  string,
+   SUBSCRIPTION_TYPE  string,
+   SERVICE_ID  string,
+   NW_TYPE  string,
+   REC_CREATE_DATE  string,
+   REC_UPD_DATE  string,
+   CREATE_TS  string,
+   REFRESH_TS  string,
+   CALL_REC_TYPE_CD  string,
+   CALL_SERV_TYPE_CD  string)
+PARTITIONED BY ( 
+  CALL_START_DATE_PK string)
+ROW FORMAT DELIMITED 
+  FIELDS TERMINATED BY '|' 
+LOCATION
+  'maprfs:/HDS_VOL_HIVE/IDP'
+
+
+
+
+
+
+
+
+/app/HDSBAT/tmp
+
+
+/app/HDSBAT/script
+
+
+
+
+
+??optdate
+??complete file
+
+??log
+
+??/app/HDSBAT/reload/IDP/dw_master_hds_reload.sh: line 961: [: too many arguments                
+
+
+
+??0 May 28 10:13 vw_idp_familypln_day_data_usg_20200527.txt
+
+??hive point to table files compress
+
+?etl06 rpt/U_IDP_MAPR_UNLOAD spool file(one file per partition key)
+
+? #       $ret = system ("rm ${FILE_PATH}vw_idp*.gz");  no email warning
+
+?one off load 
+?two mapr table records is 0
+
+
+
+#echo "hadoop fs -mkdir maprfs://bigdatamr08-10g:7222/HDS_VOL_HIVE/FWCDR/start_date=$filedate" | tee -a ${LOGFILE}
+hadoop fs -mkdir maprfs://bigdatamr08-10g:7222/HDS_VOL_HIVE/FWCDR/start_date=$filedate
+#if [ $? -ne 0 ];then
+#  echo "Failed to create folder in new env" | tee -a ${LOGFILE}
+#  errhandle "Failed to create folder in new env"
+#  exit 99
+#fi
+
+
+
+
+
+
+
+
+
+
+
+
+update prd_etl.etl_job set last_txdate=TO_DATE('2020-05-20','YYYY-MM-DD') 
+where etl_job = 'Z_IDP_MAPR_UNLOAD';
+
+
+
+
+?put live and check
+?prd_etl.etl_ujob_ref
+
+
+
+
+
+
+
+
+???
+declare
+   fid UTL_FILE.FILE_TYPE;
+   loc VARCHAR2(100);
+   file VARCHAR2(100);
+   line VARCHAR2(2000);
+begin
+   fid := UTL_FILE.FOPEN ('EXP_STAGE','1008.out', 'W');
+   FOR rec IN (SELECT * from PRD_BIZ_SUMM.SSL_SED_CALL_SUMM where access_date between date '2019-10-08' and date '2019-10-08')
+   LOOP
+      line :=
+         rec.MSISDN||','||
+         to_char(rec.access_date,'HH24:MI:SS DD-MM-YY')||','||
+         rec.SSL_CERT_DOMAIN||','||
+         rec.BYTE_COUNT||','||
+         rec.CREATE_TS||','||
+         rec.REFRESH_TS;
+         UTL_FILE.PUT_LINE (fid, line);
+   END LOOP;
+   UTL_FILE.FCLOSE (fid);
+EXCEPTION
+   WHEN OTHERS THEN UTL_FILE.FCLOSE (fid);
+END;
+/
+
+declare
+   fid SYS.UTL_FILE.FILE_TYPE;
+   loc VARCHAR2(100);
+   file VARCHAR2(100);
+   line VARCHAR2(2000);
+begin
+   fid := UTL_FILE.FOPEN ('EXP_STAGE','idp_call_log_details.out', 'W');
+   FOR rec IN (SELECT cust_num,subr_NUm from prd_adw.idp_call_log_details where rownum<10)
+   LOOP
+      line := rec.cust_num||','||rec.subr_Num;        
+         UTL_FILE.PUT_LINE (fid, line);
+   END LOOP;
+   UTL_FILE.FCLOSE (fid);
+EXCEPTION
+   WHEN OTHERS THEN UTL_FILE.FCLOSE (fid);
+END;
+/
+
+
+??
+idp_call_log_details
+idp_postpd_usg_patt_hist
+
+
+
+
+

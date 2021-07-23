@@ -1,0 +1,73 @@
+-rw-rw-r-- 1 mapr mapr   90 May 26 17:15 row.py
+-rw-r--r-- 1 mapr mapr 3.8K Jun 15 14:05 README.md
+-rw-rw-r-- 1 mapr mapr    0 Jun 18 10:12 test3.py
+-rw-rw-r-- 1 mapr mapr 2.1K Jun 18 10:59 test.py
+-rw-rw-r-- 1 mapr mapr 3.2K Jun 18 18:05 test4.py
+-rw-r--r-- 1 mapr mapr  16M Jun 22 14:33 domains.csv
+-rw-rw-r-- 1 mapr mapr 3.5K Jun 22 14:43 test5.py
+-rw-rw-r-- 1 mapr mapr  704 Jun 22 15:36 test6.py
+-rw-rw-r-- 1 mapr mapr  131 Jul  3 09:40 test2.py
+-rw-rw-r-- 1 mapr mapr  925 Jul  3 13:39 parque.py           rdd
+-rw-rw-r-- 1 mapr mapr 1008 Jul  7 11:19 parque3.py
+-rw-rw-r-- 1 mapr mapr  237 Jul  8 11:09 ptest.py
+-rw-r--r-- 1 mapr mapr  13M Jul  8 14:53 part0000.csv
+-rw-r--r-- 1 mapr mapr  15M Jul  8 18:34 part-00004-01272b5a-feb4-4ee3-9436-4031953964c0-c000.csv
+-rw-rw-r-- 1 mapr mapr 2.0K Jul  9 15:32 maprTest.scala      mall
+-rw-rw-r-- 1 mapr mapr 1.1K Jul  9 17:42 maprTest.java       mall
+-rw-rw-r-- 1 mapr mapr  650 Jul 13 12:19 maprTest.py         mall
+-rw-rw-r-- 1 mapr mapr 1.3K Jul 13 12:29 parquet2.py         p
+-rw-rw-r-- 1 mapr mapr 1.5K Jul 15 18:02 mall.py             mall
+-rw-rw-r-- 1 mapr mapr 2.0K Jul 15 18:12 mall2.py            mall
+-rw-rw-r-- 1 mapr mapr  520 Jul 16 10:30 splitFile.py        p
+-rw-r--r-- 1 mapr mapr 5.2M Jul 16 14:57 bp_subr_num.zip
+-rw-r--r-- 1 mapr mapr  12M Jul 16 15:01 bp_subr_num.txt
+-rw-rw-r-- 1 mapr mapr 589K Jul 16 16:35 chk
+-rw-rw-r-- 1 mapr mapr  968 Jul 16 16:51 querypqTest.py      p
+-rw-rw-r-- 1 mapr mapr 1.5K Jul 16 18:31 joinTest.py         new job
+drwxrwxr-x 5 mapr mapr  133 Jul 16 19:00 metastore_db
+-rw-rw-r-- 1 mapr mapr 323K Jul 16 19:00 derby.log
+
+
+
+[mapr@bigdatamr10 ba]$ ls -lrgt
+total 49920
+-rw-rw-r-- 1 mapr       90 May 26 17:15 row.py
+-rw-r--r-- 1 mapr     3809 Jun 15 14:05 README.md
+-rw-rw-r-- 1 mapr        0 Jun 18 10:12 test3.py
+-rw-rw-r-- 1 mapr     2093 Jun 18 10:59 test.py
+-rw-rw-r-- 1 mapr     3267 Jun 18 18:05 test4.py
+-rw-r--r-- 1 mapr 16209667 Jun 22 14:33 domains.csv
+-rw-rw-r-- 1 mapr     3573 Jun 22 14:43 test5.py
+-rw-rw-r-- 1 mapr      704 Jun 22 15:36 test6.py
+-rw-rw-r-- 1 mapr      131 Jul  3 09:40 test2.py
+-rw-rw-r-- 1 mapr      925 Jul  3 13:39 parque.py
+-rw-rw-r-- 1 mapr     1008 Jul  7 11:19 parque3.py
+-rw-rw-r-- 1 mapr      237 Jul  8 11:09 ptest.py
+-rw-r--r-- 1 mapr 12642646 Jul  8 14:53 part0000.csv
+-rw-r--r-- 1 mapr  3742156 Jul  8 18:34 part-00004-01272b5a-feb4-4ee3-9436-4031953964c0-c000.csv.gz
+-rw-rw-r-- 1 mapr     1996 Jul  9 15:32 maprTest.scala
+-rw-rw-r-- 1 mapr     1086 Jul  9 17:42 maprTest.java
+-rw-rw-r-- 1 mapr      650 Jul 13 12:19 maprTest.py
+-rw-rw-r-- 1 mapr     1274 Jul 13 12:29 parquet2.py
+-rw-rw-r-- 1 mapr     1447 Jul 15 18:02 mall.py
+-rw-rw-r-- 1 mapr     2037 Jul 15 18:12 mall2.py
+-rw-rw-r-- 1 mapr      520 Jul 16 10:30 splitFile.py
+-rw-r--r-- 1 mapr  5367902 Jul 16 14:57 bp_subr_num.zip
+-rw-rw-r-- 1 mapr   602318 Jul 16 16:35 chk
+-rw-rw-r-- 1 mapr      968 Jul 16 16:51 querypqTest.py
+-rw-r--r-- 1 mapr 12444273 Jul 20 17:24 bp_subr_num.txt
+-rw-rw-r-- 1 mapr      630 Jul 21 15:13 genParquetFromLoacl.py
+-rw-rw-r-- 1 mapr     1546 Jul 22 11:21 joinTest.py
+drwxrwxr-x 5 mapr      133 Jul 22 15:49 metastore_db
+-rw-rw-r-- 1 mapr      682 Jul 22 15:49 derby.log
+-rw-rw-r-- 1 mapr      978 Jul 23 13:36 smcinJoin.py
+-rw-rw-r-- 1 mapr      663 Jul 23 14:34 smcinsplit.py
+
+
+
+
+
+
+
+
+

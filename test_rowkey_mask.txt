@@ -1,0 +1,68 @@
+
+/app/HDSBAT/reload/test_e
+
+
+h_fw_cdr_test
+
+maprfs:/HDS_VOL_HIVE/reload/FWCDR
+
+hadoop fs -ls /HDS_VOL_HIVE/reload/FWCDR/start_date=20200515
+
+
+
+cp /nfs/eo_logsearch/MD_DATA/FW/FWCDR_RELOAD/fw_cdr.20200515064109.gz /app/HDSBAT/reload/test_e
+
+rm /app/HDSBAT/process/running/dw_load_fwcdr.running
+
+
+/app/HDSBAT/cvtdata/FWCDR/process
+
+alter table h_fw_cdr_test add if not exists partition (start_date='20200515');
+
+load data LOCAL inpath '/app/HDSBAT/cvtdata/FWCDR/fwcdr_ldr_20200515_20200515103737_p1_000.gz' into table h_fw_cdr_test partition(start_date='20200515');
+
+
+hadoop fs -mkdir maprfs://bigdatamr08-10g:7222/HDS_VOL_HIVE/TEST/FWCDR/start_date=20200515
+hadoop fs -ls /HDS_VOL_HIVE/TEST/FWCDR/start_date=20200515
+
+hadoop fs -chmod 777 maprfs://bigdatamr08-10g:7222/HDS_VOL_HIVE/TEST/FWCDR/start_date=20200515
+
+hadoop distcp /HDS_VOL_HIVE/reload/FWCDR/start_date=20200515/fwcdr_ldr*gz maprfs://bigdatamr08-10g.hksmartone.com/HDS_VOL_HIVE/TEST/FWCDR/start_date=20200515
+
+
+
+
+
+zcat fwcdr_ldr_20200515_20200515103737_p1_000.gz | awk -F"|" '{print $1$4"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7}' | cut -d "|" -f1 |sort|uniq |wc -l 
+
+
+
+
+
+
+
+
+zcat fwcdr_ldr_20200515_20200515103737_p1_000.gz | awk -F"|" 'BEGIN {cnt=0}{cnt ++;print $1cnt}' |head
+
+
+
+ zcat fwcdr_ldr_20200515_20200515103737_p1_000.gz | awk -F"|" 'BEGIN {cnt=0}{cnt ++;print $1cnt"|"$2"|"$3"|"$4"|"$5"|"$6"|"$7}' | cut -d "|" -f1 |sort|uniq |wc -l 
+
+
+
+java -cp "`hbase classpath`" org.apache.hadoop.hbase.mapreduce.ImportTsv -Dmapreduce.tasktracker.map.tasks.maximum=30 '-Dimporttsv.separator=|'  -Dcreate.table=no -Dimporttsv.skip.bad.lines=false -Dimporttsv.columns="HBASE_ROW_KEY,cf:start_datetime,cf:src,cf:send_volume,cf:receive_volume,cf:service,cf:dst" /HDS_VOL_HBASE/TEST/FW_CDR_05 maprfs:///HDS_VOL_HIVE/TEST/FWCDR/start_date=20200515/fwcdr_ldr*gz 
+
+
+
+
+
+hadoop fs -copyFromLocal fwcdr_ldr_20200515_20200515103737_p1_000.gz /HDS_VOL_HIVE/TEST/FWCDR/start_date=20200515
+
+hadoop fs -ls /HDS_VOL_HIVE/TEST/FWCDR/start_date=20200515
+
+
+maprcli table info -path '/HDS_VOL_HBASE/TEST/FW_CDR_05' -json
+
+zcat fwcdr_ldr_20200515_20200515103737_p1_000.gz | cut -d "|" -f1 |sort|uniq |wc -l
+
+

@@ -1,0 +1,569 @@
+
+MIG_ADW.X_RETENT_CORP_COMM_MKT_REF
+
+/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_MKT_REF/bin/x_retent_corp_comm_mkt_ref0010.pl
+
+RETENT_CORP_COMM_SAL_REF
+
+Hi,Eloise
+            Please update the datastage job with 3 new columns
+
+select * from mig_adw.RETENT_CORP_COMM_BM_MKTCD_REF; --- set date fields to 2999-12-31
+Marketing Code    BM Cat
+BMSIM SIM
+CAU07,additional SMS
+CAU63,additional mins
+CAU64,additional mins
+CAU65,additional mins
+CAU66,additional mins
+CAU67,additional mins
+========================================================================================
+
+
+Hi,Eloise
+Report :Y_B_RETENT_CORP_COMM_RPT
+
+Logic : when insert  B_RETENT_CORP_COMM_004A01_T. map to RETENT_CORP_COMM_MKT_REF
+If pos_mkt_cd in mapping and override =’Y’ then override the bill_rate ,rebate_amt , rebate_flg=’OVR_REBATE’
+If old_ld_mkt_cd in mapping and override =’Y’ then override the old_bill_rate ,old_rebate_amt , old_rebate_flg=’OVR_REBATE’
+
+
+override_flg , overr_bill_rate,overr_rebate_amt
+
+
+
+select 
+   a.rpt_mth
+  ,a.comm_mth
+  ,a.case_id
+  ,a.cust_num
+  ,a.subr_num
+  ,a.pos_inv_num
+  ,a.pos_mkt_cd
+  ,a.pos_inv_date
+  ,a.pos_inv_tag
+  ,a.pos_ld_cd
+  ,a.ld_inv_num
+  ,a.ld_cd
+  ,a.ld_mkt_cd
+  ,a.ld_start_date
+  ,a.ld_expired_date
+  ,a.old_ld_inv_num
+  ,a.old_ld_cd
+  ,a.old_ld_mkt_cd
+  ,a.old_ld_start_date
+  ,a.old_ld_expired_date
+  ,a.bill_cycle
+  ,a.subr_sw_on_date
+  ,a.subr_stat_cd
+  ,a.rate_plan_cd
+  ,case when b.MKT_CD is not null
+        then b.OVERR_BILL_RATE
+   else a.bill_rate
+   end as bill_rate
+  ,a.old_rate_plan_cd
+  ,case when c.MKT_CD is not null
+        then c.OVERR_BILL_RATE
+   else a.old_bill_rate
+   end as old_bill_rate
+  ,a.bill_inv_list
+  ,case when b.MKT_CD is not null
+        then b.OVERR_REBATE_AMT
+   else a.rebate_amt
+   end as rebate_amt
+  ,a.hs_subsidy_amt
+  ,a.old_bill_inv_list
+  ,case when c.MKT_CD is not null
+        then c.OVERR_REBATE_AMT
+   else a.old_rebate_amt
+   end as old_rebate_amt
+  ,a.old_hs_subsidy_amt
+  ,a.salesman_cd
+  ,a.sales_team
+  ,case when b.MKT_CD is not null
+        then 'OVR_REBATE'
+   else a.rebate_flg
+   end as rebate_flg
+  ,case when c.MKT_CD is not null
+        then 'OVR_REBATE'
+   else a.old_rebate_flg
+   end as old_rebate_flg
+  ,a.bm_cat
+  ,a.json_rmk
+from mig_adw.B_RETENT_CORP_COMM_004A01_T a
+left outer join mig_adw.RETENT_CORP_COMM_MKT_REF b
+on a.pos_mkt_cd = b.MKT_CD and b.OVERRIDE_FLG = 'Y'
+left outer join mig_adw.RETENT_CORP_COMM_MKT_REF c
+on a.old_ld_mkt_cd = c.MKT_CD and c.OVERRIDE_FLG = 'Y'
+
+==================================================================================
+have updated script:
+Select t.case_id  from mig_adw.b_retent_corp_comm_001A_t t
+    left outer join MIG_adw.RETENT_CORP_COMM_MKT_REF  v
+            on t.pos_mkt_cd = v.mkt_cd
+    left outer join prd_adw.subr_mkt_cd_info m
+            on  t.subr_num = m.subr_num
+            and t.pos_mkt_cd = m.mkt_cd
+            and m.inv_date between  add_months(&rpt_s_date,-24) and &rpt_s_date -1
+    where m.subr_num is  null
+    and upper(v.bm_cat) ='OTHERS'
+
+    rs_ta.chg_plan_flg := case when rs_sr.old_ld_expired_date >rs_sr.ld_expired_date 
+                         then 'Y' else 'N' end ;
+    rs_ta.remain_contract_mth :=  case when rs_ta.chg_plan_flg ='Y' and rs_sr.old_ld_inv_num <> ' ' 
+                                        and round((rs_sr.ld_start_date - rs_sr.old_ld_expired_date)/30,0) >= 0
+                                       then round((rs_sr.ld_start_date - rs_sr.old_ld_expired_date)/30,0)
+                                else 0 end ;
+
+
+
+
+==================================================================================
+
+111:
+
+Hi,Eloise
+            Please prepare D_retent_corp_comm_overr_HIST job
+
+Input file format : rpt_mth,inv_num,overr_mkt_cd,over_ld_cd
+
+
+Target table : RETENT_CORP_COMM_OVERR_HIST
+
+
+Sample input file(sql) :
+
+ Select trunc(inv_date,’MM’),inv_num,mkt_cd,ld_cd 
+from 
+ prd_adw.pos_inv_header i
+where i.inv_date between &rpt_s_date and &rpt_e_date
+and salesman_cd in('G08038','G10053','G16166','G18126','G15042','G10064','G14148','G18153','G19018'
+                   ,'G19108','G12324','G14283','G15111','G17017','CA94040','CA94260','CA15200'
+                   ,'CA17141','CA18121','CA19079')
+and i.inv_num not in(
+        select r.inv_num from prd_adw.pos_return_header r
+        where r.trx_date between &rpt_s_date and &rpt_e_date
+)and i.mkt_cd ='N'
+
+/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_OVERR_HIST/bin
+
+
+
+222:
+/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_SALESMAN/bin
+20201111.docx
+
+
+retent_corp_comm_salesman
+X_RETENT_CORP_COMM_SALESMAN
+
+
+StaffMMYY.csv
+
+
+
+    append
+    delete by commission mth 再append
+
+
+-- and salesman_cd in('G08038','G10053','G16166','G18126','G15042','G10064','G14148','G18153','G19018'
+--                 ,'G19108','G12324','G14283','G15111','G17017','CA94040','CA94260','CA15200'
+--                 ,'CA17141','CA18121','CA19079')
+ and salesman_cd in(select SALESMAN_CD from MIG_ADW.retent_corp_comm_salesman
+                    where COMM_MTH = &comm_mth)
+
+333:
+Hi,Eloise           
+Please help to follow the UAT and enhancement step as follow:
+
+1)	Load attachement to staff list tables and run the Aug report
+2)	Run the exceptioinal report by following sql and send to me and Jenny
+3)	Prepare the U job for unload exceptional sql
+4)	Load Jenny override file to retent_corp_comm_override_H
+
+
+
+Select * from
+prd_adw.pos_inv_header i
+where i.inv_date between &rpt_s_date and &rpt_e_date
+and salesman_cd in( ---- you new salesman code table )
+and i.inv_num not in(
+        select r.inv_num from prd_adw.pos_return_header r
+        where r.trx_date between &rpt_s_date and &rpt_e_date
+)and i.inv_num not in (
+    select  ld_inv_num
+    from mig_adw.b_retent_corp_comm_004B01_t rs_ta
+)
+
+
+===============================================================
+
+
+[11/13 3:29 PM] Kevin Ou
+    rpt_s_date 是transaction date commission date 是paid date
+​[11/13 3:29 PM] Kevin Ou
+    例如rpt_s_date =2020-07-01 comm_date = 2020-10-01
+
+固定-3
+
+
+
+Select * from
+prd_adw.pos_inv_header i
+where i.inv_date between to_date('20200801','yyyymmdd') and to_date('20200831','yyyymmdd')
+and salesman_cd in(select SALESMAN_CD from MIG_ADW.retent_corp_comm_salesman
+                   where COMM_MTH = to_date('20201101','yyyymmdd'))
+and i.inv_num not in(
+        select r.inv_num from prd_adw.pos_return_header r
+        where r.trx_date between to_date('20200801','yyyymmdd') and to_date('20200831','yyyymmdd')
+)and i.inv_num not in (
+    select  ld_inv_num
+    from mig_adw.b_retent_corp_comm_004B01_t rs_ta
+)
+
+
+
+
+
+/opt/etl/prd/etl/APP/ADW/Y_B_RETENT_CORP_COMM_RPT/bin
+
+
+
+
+select * from MIG_ADW.retent_corp_comm_salesman
+select * from mig_adw.RETENT_CORP_COMM_MKT_REF
+select * from MIG_ADW.RETENT_CORP_COMM_OVERR_HIST
+
+select * from mig_adw.RETENT_CORP_COMM_H where rpt_mth = to_date('20200801','yyyymmdd')
+
+
+========================================================================
+no:  333:
+insert into prd_etl.etl_src_File(
+JOB_NAME,
+SYS_NAME,
+FILENAME_MASK,
+FILENAME_DATE_FORMAT,
+DATA_PATH,
+DATE_OFFSET,
+FILE_LOCATE_TYPE,
+PULL_START_DATE_LIST,
+PULL_START_TIME_LIST,
+CHECK_EA_FAIL_DIR_FLG,
+AS_OF_DATE_DETERMINE_METH,
+CHECK_ZERO_FILE_SIZE,
+LAST_PROCESS_STAT)
+values('X_RETENT_CORP_COMM_SALESMAN','RBD','Staff[date].csv','%m%d','/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_SALESMAN/bin/reload',-1,'copy',
+'x1:*:*','x10:00','N','T','Y','C');
+
+
+sqlplus /@$TDPID
+delete prd_etl.etl_received_file where etl_job='X_RETENT_CORP_COMM_SALESMAN';
+update prd_etl.etl_job set last_jobstatus='Ready' where etl_job = 'X_RETENT_CORP_COMM_SALESMAN';
+update prd_etl.etl_job set last_txdate=TO_DATE('2020-07-06','YYYY-MM-DD') where etl_job = 'X_RETENT_CORP_COMM_SALESMAN';
+update prd_etl.etl_src_file set last_process_start_ts=null where JOB_NAME='X_RETENT_CORP_COMM_SALESMAN';
+
+touch /opt/etl/prd/etl/presprocess/RBD/rerun/x_retent_corp_comm_salesman.rerun.20200407
+
+Y_RETENT_CORP_COMM_SALESMAN
+y_retent_corp_comm_salesman
+
+
+
+========================================================================
+/opt/etl/prd/etl/APP/ADW/Y_B_RETENT_CORP_COMM_RPT/bin
+put live 3 datastage job
+wait for jenny
+
+select * from mig_adw.RETENT_CORP_COMM_MKT_REF
+
+select * from MIG_ADW.RETENT_CORP_COMM_SALESMAN
+
+select * from MIG_ADW.RETENT_CORP_COMM_OVERR_HIST
+
+DELETE FROM ${etlvar::MIGDB}.RETENT_CORP_COMM_H where rpt_mth = &rpt_mth ;
+select * from mig_adw.RETENT_CORP_COMM_H
+
+$F_D_MONTH[0] = "2021-01-01";
+
+
+
+dwexaprd01 /app/adwbat/BP/script/dw_idd_load_auto.ksh
+
+
+The report date is wrong, I would like the Oct report, 
+i.e. 
+RPT_MTH=1/10/2020       with 10.csv
+COMM_MTH=1/1/2021
+
+
+run ea with x job on COMM_MTH + 1 month
+
+
+Please find the attached files for your reference, also saved under 
+
+R:\TEAMWORK\Tracking_Rpt\SME Retention\202012
+lftp ftpsvc01 -u SMC/dw_ftp,dw000000 -p 2026
+        set ftp:ssl-allow true
+        set ftp:ssl-force true
+        set ftp:ssl-protect-data true
+        set ftp:ssl-protect-list true
+        set ftps:initial-prot
+        set xfer:clobber on
+cd "/world/teamwork/Tracking_Rpt/SME Retention/202012"
+
+
+/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_MKT_REF/bin
+/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_SALESMAN/bin
+/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_OVERR_HIST/bin
+
+
+C_RPT_SIMO_REV
+
+
+/opt/etl/prd/etl/APP/ADW/C_RPT_SHKDP/bin
+
+
+--------------------------------------------------------------------------------------------
+sqlplus /@$TDPID
+insert into prd_etl.etl_src_File(JOB_NAME,SYS_NAME,FILENAME_MASK,FILENAME_DATE_FORMAT,DATA_PATH,
+DATE_OFFSET,MONTH_OFFSET,
+CTRL_FILE_MASK,CTRL_FILE_OFFSET,CTRL_FILE_DATE_FORMAT,FILE_LOCATE_TYPE,
+CHECK_EA_FAIL_DIR_FLG,AS_OF_DATE_DETERMINE_METH,CHECK_ZERO_FILE_SIZE,LAST_PROCESS_STAT)
+values('X_RETENT_CORP_COMM_MKT_REF','RBD','test.csv',' ','/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_MKT_REF/bin/reload',
+0,0,
+' ',0,' ','copy',
+'N','T','N','C');
+commit;
+quit;
+
+sqlplus /@$TDPID
+delete prd_etl.etl_received_file where etl_job='X_RETENT_CORP_COMM_MKT_REF';
+update prd_etl.etl_job set last_jobstatus='Ready' where etl_job = 'X_RETENT_CORP_COMM_MKT_REF';
+update prd_etl.etl_job set last_txdate=TO_DATE('2021-04-19','YYYY-MM-DD') where etl_job = 'X_RETENT_CORP_COMM_MKT_REF';
+update prd_etl.etl_src_file set last_process_start_ts=null where JOB_NAME='X_RETENT_CORP_COMM_MKT_REF';
+
+commit;
+quit;
+touch /opt/etl/prd/etl/preprocess/RBD/rerun/x_retent_corp_comm_mkt_ref.rerun.20210420
+ls -l /opt/etl/prd/etl/preprocess/RBD/rerun
+--------------------------------------------------------------------------------------------
+
+sqlplus /@$TDPID
+insert into prd_etl.etl_src_File(JOB_NAME,SYS_NAME,FILENAME_MASK,FILENAME_DATE_FORMAT,DATA_PATH,
+DATE_OFFSET,MONTH_OFFSET,
+CTRL_FILE_MASK,CTRL_FILE_OFFSET,CTRL_FILE_DATE_FORMAT,FILE_LOCATE_TYPE,
+CHECK_EA_FAIL_DIR_FLG,AS_OF_DATE_DETERMINE_METH,CHECK_ZERO_FILE_SIZE,LAST_PROCESS_STAT)
+values('X_RETENT_CORP_COMM_SALESMAN','RBD','test.csv',' ','/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_SALESMAN/bin/reload',
+0,0,
+' ',0,' ','copy',
+'N','T','N','C');
+commit;
+quit;
+sqlplus /@$TDPID
+delete prd_etl.etl_received_file where etl_job='X_RETENT_CORP_COMM_SALESMAN';
+update prd_etl.etl_job set last_jobstatus='Ready' where etl_job = 'X_RETENT_CORP_COMM_SALESMAN';
+update prd_etl.etl_job set last_txdate=TO_DATE('2021-04-19','YYYY-MM-DD') where etl_job = 'X_RETENT_CORP_COMM_SALESMAN';
+update prd_etl.etl_src_file set last_process_start_ts=null where JOB_NAME='X_RETENT_CORP_COMM_SALESMAN';
+
+commit;
+quit;
+
+touch /opt/etl/prd/etl/preprocess/RBD/rerun/x_retent_corp_comm_salesman.rerun.20210420
+ls -l /opt/etl/prd/etl/preprocess/RBD/rerun
+--------------------------------------------------------------------------------------------
+sqlplus /@$TDPID
+insert into prd_etl.etl_src_File(JOB_NAME,SYS_NAME,FILENAME_MASK,FILENAME_DATE_FORMAT,DATA_PATH,
+DATE_OFFSET,MONTH_OFFSET,
+CTRL_FILE_MASK,CTRL_FILE_OFFSET,CTRL_FILE_DATE_FORMAT,FILE_LOCATE_TYPE,
+CHECK_EA_FAIL_DIR_FLG,AS_OF_DATE_DETERMINE_METH,CHECK_ZERO_FILE_SIZE,LAST_PROCESS_STAT)
+values('X_RETENT_CORP_COMM_OVERR_HIST','RBD','test.csv',' ','/opt/etl/prd/etl/APP/RBD/X_RETENT_CORP_COMM_OVERR_HIST/bin/reload',
+0,0,
+' ',0,' ','copy',
+'N','T','N','C');
+commit;
+quit;
+sqlplus /@$TDPID
+delete prd_etl.etl_received_file where etl_job='X_RETENT_CORP_COMM_OVERR_HIST';
+update prd_etl.etl_job set last_jobstatus='Ready' where etl_job = 'X_RETENT_CORP_COMM_OVERR_HIST';
+update prd_etl.etl_job set last_txdate=TO_DATE('2021-04-15','YYYY-MM-DD') where etl_job = 'X_RETENT_CORP_COMM_OVERR_HIST';
+update prd_etl.etl_src_file set last_process_start_ts=null where JOB_NAME='X_RETENT_CORP_COMM_OVERR_HIST';
+
+commit;
+quit;
+
+touch /opt/etl/prd/etl/preprocess/RBD/rerun/x_retent_corp_comm_overr_hist.rerun.20210420
+ls -l /opt/etl/prd/etl/preprocess/RBD/rerun
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

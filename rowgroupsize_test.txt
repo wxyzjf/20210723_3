@@ -1,0 +1,239 @@
+
+
+
+instances,13   &   repartition(1)   &   1024*1024*100 ::: 4cluster.py
+[mapr@bigdatamr10 test_min_max]$ hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/el_test_par | grep "row group" | head -10          20/07/24 12:29:36 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+20/07/24 12:29:36 INFO hadoop.ParquetFileReader: reading another 1 footers
+20/07/24 12:29:36 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+row group 1:  RC:4950100 TS:225765455 OFFSET:4 
+row group 2:  RC:4870100 TS:224567859 OFFSET:104530719 
+row group 3:  RC:5210100 TS:242015640 OFFSET:208349784 
+row group 4:  RC:8570100 TS:271406328 OFFSET:311948469 
+row group 5:  RC:9150100 TS:263008933 OFFSET:415452328 
+row group 6:  RC:5130100 TS:224842022 OFFSET:519353945 
+row group 7:  RC:6720100 TS:308876354 OFFSET:623867019 
+row group 8:  RC:8640100 TS:269209913 OFFSET:727807955 
+row group 9:  RC:6540100 TS:218093686 OFFSET:832373238 
+row group 10: RC:4860100 TS:224522757 OFFSET:936707449 
+
+[mapr@bigdatamr10 test_min_max]$ cat 4cluster.py
+from pyspark.sql import SparkSession
+from pyspark.sql import  Row
+from pyspark.sql.types import *
+from datetime import datetime
+from pyspark import SparkContext,SparkConf
+from pyspark.sql.functions import *
+
+conf = SparkConf().setAppName("Test Par").setAll([('spark.executor.instances',13),('soark.executor.memory','3G'),('spark.executor.memoryOverhead','3G')])
+sc = SparkContext(conf=conf)
+spark = SparkSession(sc)
+
+print(datetime.now())
+sc._jsc.hadoopConfiguration().setInt("dfs.blocksize",1024*1024*100)
+sc._jsc.hadoopConfiguration().setInt("parquet.block.size",1024*1024*100)
+
+df = spark.read.parquet("maprfs:///HDS_VOL_TMP/el_get_par/part-00000-a8c67882-81dd-4972-86ab-87d9781955ff-c000.gz.parquet")
+
+df.repartition(1).write.save("maprfs:///HDS_VOL_TMP/el_test_par",format='parquet',mode='append')
+#df.write.option("parquet.block.size", 1024*1024*10).save("maprfs:///HDS_VOL_TMP/test_el_par8",format='parquet',mode='append')
+
+print(datetime.now())
+------------------------------------------------------------------------------------------------------------------------------------------
+instances,13   &   no repartition   &   1024*1024*100 ::: 4_2cluster.py
+[mapr@bigdatamr10 test_min_max]$ hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/el_test_par2 | grep "row group" | head -10
+20/07/24 12:29:49 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+20/07/24 12:29:49 INFO hadoop.ParquetFileReader: reading another 14 footers
+20/07/24 12:29:49 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+row group 1: RC:4910100 TS:226924420 OFFSET:4 
+row group 2: RC:4740100 TS:225527714 OFFSET:105000926 
+row group 3: RC:829900 TS:33980412 OFFSET:209228249 
+row group 1: RC:8340100 TS:273930115 OFFSET:4 
+row group 2: RC:8290100 TS:284929069 OFFSET:103954979 
+row group 3: RC:359900 TS:1824572 OFFSET:207789276 
+row group 1: RC:4710100 TS:226760760 OFFSET:4 
+row group 2: RC:4740100 TS:227344026 OFFSET:104503133 
+row group 3: RC:939900 TS:29775346 OFFSET:208876238 
+row group 1: RC:8780100 TS:261091892 OFFSET:4 
+
+[mapr@bigdatamr10 test_min_max]$ cat 4_2cluster.py
+from pyspark.sql import SparkSession
+from pyspark.sql import  Row
+from pyspark.sql.types import *
+from datetime import datetime
+from pyspark import SparkContext,SparkConf
+from pyspark.sql.functions import *
+
+conf = SparkConf().setAppName("Test Par").setAll([('spark.executor.instances',13),('soark.executor.memory','3G'),('spark.executor.memoryOverhead','3G')])
+sc = SparkContext(conf=conf)
+spark = SparkSession(sc)
+
+print(datetime.now())
+sc._jsc.hadoopConfiguration().setInt("dfs.blocksize",1024*1024*100)
+sc._jsc.hadoopConfiguration().setInt("parquet.block.size",1024*1024*100)
+
+df = spark.read.parquet("maprfs:///HDS_VOL_TMP/el_get_par/part-00000-960f12f2-fdd6-4536-a5b9-89be61ba5158-c000.gz.parquet")
+
+df.write.save("maprfs:///HDS_VOL_TMP/el_test_par2",format='parquet',mode='append')
+#df.write.option("parquet.block.size", 1024*1024*10).save("maprfs:///HDS_VOL_TMP/test_el_par8",format='parquet',mode='append')
+
+print(datetime.now())
+------------------------------------------------------------------------------------------------------------------------------------------
+instances,13   &   repartition(1)   &   1024*1024*200 ::: 4_3cluster.py
+[mapr@bigdatamr10 test_min_max]$ hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/el_test_par3 | grep "row group" | head -10 
+20/07/24 12:29:58 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+20/07/24 12:29:58 INFO hadoop.ParquetFileReader: reading another 1 footers
+20/07/24 12:29:58 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+row group 1:  RC:14800100 TS:590310216 OFFSET:4 
+row group 2:  RC:10930100 TS:447747389 OFFSET:209255655 
+row group 3:  RC:12470100 TS:590950572 OFFSET:418830071 
+row group 4:  RC:13480100 TS:533054092 OFFSET:628267473 
+row group 5:  RC:15330100 TS:587112027 OFFSET:837728905 
+row group 6:  RC:11510100 TS:547602262 OFFSET:1047515695 
+row group 7:  RC:13990100 TS:540993711 OFFSET:1256414484 
+row group 8:  RC:9520100 TS:457362053 OFFSET:1466300992 
+row group 9:  RC:9550100 TS:456375213 OFFSET:1675946653 
+row group 10: RC:9340100 TS:457016872 OFFSET:1884893859 
+
+[mapr@bigdatamr10 test_min_max]$ cat 4_3cluster.py
+from pyspark.sql import SparkSession
+from pyspark.sql import  Row
+from pyspark.sql.types import *
+from datetime import datetime
+from pyspark import SparkContext,SparkConf
+from pyspark.sql.functions import *
+
+conf = SparkConf().setAppName("Test Par").setAll([('spark.executor.instances',13),('soark.executor.memory','3G'),('spark.executor.memoryOverhead','3G')])
+sc = SparkContext(conf=conf)
+spark = SparkSession(sc)
+
+print(datetime.now())
+sc._jsc.hadoopConfiguration().setInt("dfs.blocksize",1024*1024*200)
+sc._jsc.hadoopConfiguration().setInt("parquet.block.size",1024*1024*200)
+
+df = spark.read.parquet("maprfs:///HDS_VOL_TMP/el_get_par/part-00000-960f12f2-fdd6-4536-a5b9-89be61ba5158-c000.gz.parquet")
+
+df.repartition(1).write.save("maprfs:///HDS_VOL_TMP/el_test_par3",format='parquet',mode='append')
+#df.write.option("parquet.block.size", 1024*1024*10).save("maprfs:///HDS_VOL_TMP/test_el_par8",format='parquet',mode='append')
+
+print(datetime.now())
+------------------------------------------------------------------------------------------------------------------------------------------
+instances,13   &   no repartition   &   1024*1024*200 ::: 4_4cluster.py
+[mapr@bigdatamr10 test_min_max]$ hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/el_test_par4 | grep "row group" | head -10 
+20/07/24 12:30:05 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+20/07/24 12:30:05 INFO hadoop.ParquetFileReader: reading another 14 footers
+20/07/24 12:30:05 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+row group 1: RC:15170100 TS:574661720 OFFSET:4 
+row group 2: RC:1710000 TS:18975414 OFFSET:208719745 
+row group 1: RC:9610100 TS:456800038 OFFSET:4 
+row group 2: RC:1000000 TS:31949581 OFFSET:209400169 
+row group 1: RC:9600100 TS:457928915 OFFSET:4 
+row group 2: RC:1020000 TS:33362287 OFFSET:209613313 
+row group 1: RC:9390100 TS:457063307 OFFSET:4 
+row group 2: RC:1040000 TS:33977843 OFFSET:208943902 
+row group 1: RC:14560100 TS:585467690 OFFSET:4 
+row group 2: RC:1910000 TS:16719085 OFFSET:209061407 
+
+[mapr@bigdatamr10 test_min_max]$ cat 4_4cluster.py
+from pyspark.sql import SparkSession
+from pyspark.sql import  Row
+from pyspark.sql.types import *
+from datetime import datetime
+from pyspark import SparkContext,SparkConf
+from pyspark.sql.functions import *
+
+conf = SparkConf().setAppName("Test Par").setAll([('spark.executor.instances',13),('soark.executor.memory','3G'),('spark.executor.memoryOverhead','3G')])
+sc = SparkContext(conf=conf)
+spark = SparkSession(sc)
+
+print(datetime.now())
+sc._jsc.hadoopConfiguration().setInt("dfs.blocksize",1024*1024*200)
+sc._jsc.hadoopConfiguration().setInt("parquet.block.size",1024*1024*200)
+
+df = spark.read.parquet("maprfs:///HDS_VOL_TMP/el_get_par/part-00000-960f12f2-fdd6-4536-a5b9-89be61ba5158-c000.gz.parquet")
+
+df.write.save("maprfs:///HDS_VOL_TMP/el_test_par4",format='parquet',mode='append')
+#df.write.option("parquet.block.size", 1024*1024*10).save("maprfs:///HDS_VOL_TMP/test_el_par8",format='parquet',mode='append')
+
+print(datetime.now())
+------------------------------------------------------------------------------------------------------------------------------------------
+instances,5   $   no repartition   &   1024*1024*100 ::: 5cluster.py
+[mapr@bigdatamr10 test_min_max]$ hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/el_test_par5 | grep "row group" | head -10 
+20/07/24 12:30:15 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+20/07/24 12:30:15 INFO hadoop.ParquetFileReader: reading another 14 footers
+20/07/24 12:30:15 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+row group 1: RC:4920100 TS:226285654 OFFSET:4 
+row group 2: RC:4730100 TS:225157974 OFFSET:104546551 
+row group 3: RC:829900 TS:34077818 OFFSET:208995600 
+row group 1: RC:4710100 TS:226760760 OFFSET:4 
+row group 2: RC:4740100 TS:227344026 OFFSET:104503133 
+row group 3: RC:939900 TS:29775346 OFFSET:208876238 
+row group 1: RC:4910100 TS:226924420 OFFSET:4 
+row group 2: RC:4740100 TS:225527714 OFFSET:105000926 
+row group 3: RC:829900 TS:33980412 OFFSET:209228249 
+row group 1: RC:8340100 TS:273930115 OFFSET:4 
+
+[mapr@bigdatamr10 test_min_max]$ cat 5cluster.py
+from pyspark.sql import SparkSession
+from pyspark.sql import  Row
+from pyspark.sql.types import *
+from datetime import datetime
+from pyspark import SparkContext,SparkConf
+from pyspark.sql.functions import *
+
+conf = SparkConf().setAppName("Test Par").setAll([('spark.executor.instances',5),('soark.executor.memory','3G'),('spark.executor.memoryOverhead','3G')])
+sc = SparkContext(conf=conf)
+spark = SparkSession(sc)
+
+print(datetime.now())
+sc._jsc.hadoopConfiguration().setInt("dfs.blocksize",1024*1024*100)
+sc._jsc.hadoopConfiguration().setInt("parquet.block.size",1024*1024*100)
+
+df = spark.read.parquet("maprfs:///HDS_VOL_TMP/el_get_par/part-00000-960f12f2-fdd6-4536-a5b9-89be61ba5158-c000.gz.parquet")
+
+df.write.save("maprfs:///HDS_VOL_TMP/el_test_par5",format='parquet',mode='append')
+#df.write.option("parquet.block.size", 1024*1024*10).save("maprfs:///HDS_VOL_TMP/test_el_par8",format='parquet',mode='append')
+
+print(datetime.now())
+------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+[mapr@bigdatamr10 test_min_max]$ hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/el_test_par_512 | grep "row group" | head -10
+20/07/24 14:16:38 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+20/07/24 14:16:38 INFO hadoop.ParquetFileReader: reading another 1 footers
+20/07/24 14:16:38 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+row group 1: RC:31130100 TS:1366978367 OFFSET:4 
+row group 2: RC:28810100 TS:1267693640 OFFSET:536270438 
+row group 3: RC:29020100 TS:1412685098 OFFSET:1073117460 
+row group 4: RC:26930100 TS:1314710449 OFFSET:1610042337 
+row group 5: RC:30040100 TS:1414939485 OFFSET:2146266645 
+row group 6: RC:25930100 TS:1281679031 OFFSET:2682871191 
+row group 7: RC:8139400 TS:384995637 OFFSET:3218236816 
+[mapr@bigdatamr10 test_min_max]$ hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/el_test_par_256 | grep "row group" | head -10   
+20/07/24 14:16:47 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+20/07/24 14:16:47 INFO hadoop.ParquetFileReader: reading another 1 footers
+20/07/24 14:16:47 INFO hadoop.ParquetFileReader: Initiating action with parallelism: 5
+row group 1:  RC:12070100 TS:583657018 OFFSET:4 
+row group 2:  RC:13100100 TS:642146458 OFFSET:268154613 
+row group 3:  RC:19000100 TS:777124615 OFFSET:535808828 
+row group 4:  RC:17300100 TS:705341335 OFFSET:804161747 
+row group 5:  RC:16070100 TS:628981009 OFFSET:1071618193 
+row group 6:  RC:15710100 TS:755138063 OFFSET:1340097994 
+row group 7:  RC:18450100 TS:766051576 OFFSET:1607879628 
+row group 8:  RC:13250100 TS:573523462 OFFSET:1876102147 
+row group 9:  RC:11940100 TS:586789286 OFFSET:2143966296 
+row group 10: RC:12080100 TS:586327629 OFFSET:2411709129 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,246 @@
+
+(to_date('$etlvar::F_D_MONTH[0]' , 'YYYY-MM-DD') -1)
+
+(to_date('$etlvar::F_D_MONTH[3]' , 'YYYY-MM-DD') -1)
+
+
+
+  CREATE_TS    TIMESTAMP(0)                     DEFAULT TO_TIMESTAMP('1900-01-01 00:00:00','YYYY-MM-DD HH24:MI:SS') NOT NULL,
+  REFRESH_TS   TIMESTAMP(0)                     DEFAULT TO_TIMESTAMP('1900-01-01 00:00:00','YYYY-MM-DD HH24:MI:SS') NOT NULL
+
+
+
+    system("touch ${OUTPUT_FILE_PATH}/${OUTPUT_COMPLETE}");
+
+
+sql xingneng youhua
+
+
+      and a.trx_date between e.EFF_START_DATE and e.EFF_end_DATE
+
+
+
+
+; ; ; ; ;  + distinct in sub sql
+
+
+
+
+if CONTRACT_PERIOD = 0
+
+
+
+ADD_MONTHS(trunc(TO_DATE('--','YYYY-MM-DD'),'MM'),-0),'YYYY-MM-DD') from dual"] at /opt/etl/prd/etl/etc/etlvar.pl line 3329.
+
+
+select * from prd_adw.bill_servs where BILL_SERV_CD = 'UDG01'
+and subr_num = '92236412' and CUST_NUM = '09792216' and bill_start_date = to_date('20200301','yyyymmdd')
+and bill_end_date = to_date('20200301','yyyymmdd')
+
+
+order by which col
+
+
+
+inv_num manual d job
+
+
+BM_LD_HS_SUBSIDY_2_202006.csv.complete
+
+datastage table definitation
+
+distinct inv_num manual
+
+two table add col inv_num
+
+
+put live
+
+.dev   date  inv num d job   BM_LD_HS_SUBSIDY_2_
+
+
+bmrpt
+ 
+
+
+left outer join mig_adw.X_BM_COMM_RPT_ICT_REF a3
+--left outer join (select * from mig_adw.X_BM_COMM_RPT_ICT_REF where TYPE1 in
+  -- ('Enterprise Solution','Enterprise Solution - Others','Fixed Network Services','ICT Projects')) a3
+on a1.bill_serv_cd = a3.bill_cd
+   and A3.TYPE1 in ('Enterprise Solution','Enterprise Solution - Others','Fixed Network Services','ICT Projects')
+do not use sub sql too more
+
+3%
+
+out put file header
+
+
+(Category = F)
+
+
+mig_adw.x table col length modify for test
+
+
+
+datastage log
+
+
+xls save as which format
+
+
+x pl col remove those unuse col
+
+
+
+  'TTL_Vendor_MthLY_COST'       ||','||
+  'TTL_Vendor_ONEOFF_COST'      ||','||
+
+
+  'TTL_Vendor_ONEOFF_COST'      ||','||
+  'TTL_Vendor_MthLY_COST'       ||','||
+
+
+datastage job:
+CopyOfD_BM_COMM_RPT_ICT_REF
+CopyOfD_BM_COMM_RPT_ICT_EXCOST
+X_test
+X_BM_COMM_RPT_ICT_REF
+X_BM_COMM_RPT_ICT_EXCOST
+D_BM_COMM_RPT_ICT_REF_bak
+
+
+
+
+test srcfile in datastage can view data
+
+
+
+
+filepattern datastage 
+/opt/etl/prd/etl/preprocess/USR/script> ls -l /opt/etl/prd/etl/DATA/process/x_bm_comm_rpt_ict_excost_*.dat*
+-rw-r--r-- 1 adwbat dstage 553177 Jul  9 15:43 /opt/etl/prd/etl/DATA/process/x_bm_comm_rpt_ict_excost_001.dat_SMC_Resell_Order_HKBN.xls_20200709
+-rw-r--r-- 1 adwbat dstage   3914 Jul  9 17:05 /opt/etl/prd/etl/DATA/process/x_bm_comm_rpt_ict_excost_001.dat_x_bm_comm_rpt_ict_excost.txt_20200709
+/opt/etl/prd/etl/preprocess/USR/script> 
+set to
+/opt/etl/prd/etl/DATA/process/x_bm_comm_rpt_ict_excost_001.dat_x_bm_comm_rpt_ict_excost.txt_20200709
+
+
+
+
+ bonnie outook
+
+ftp get src file
+
+monthly cost = monthly cost 1 + monthly cost 2
+
+
+
+next;
+
+
+X_BM_COMM_RPT_ICT_EXCOST datastage job 
+|>end
+pattern file
+datastage  up or in to set pattern
+
+1.	If [Subscriber Number] found, BOTH [Cost] (for Bill Code’s Type 1 = ‘‘Fixed Network Services’) [4h] and [Extra Cost] are referring from resell order files
+2.	No need to take care of [Vendor Name] [4g] and resell order files from while Vendor
+For example: If [Vendor Name] [4g] of ICT subr = ‘HGC’ / ‘iCable’, lookup this subr num from BOTH files
+
+
+h.	Monthly Cost 1: [Criteria] Monthly Cost For Bill Code’s Type 1 = ‘Fixed Network Services’ and Subr found in resell order files
+?	Monthly Cost 1 = Sum([Monthly Cost]) per Subr [Ref point 2]
+* Monthly Cost 1 is Total Monthly Cost of all Bill Code’s Type 1 = ‘Fixed Network Services’. If subr has 2 Bill Code with Type 1 = ‘Fixed Network Services’, Sum([Monthly Cost]) in resell order files is total monthly cost of these 2 Bill Code with Type 1 = ‘Fixed Network Services’ Bill Code.
+Monthly Cost 2: [Criteria] (Monthly Cost for Bill Code’s [Type 1] <> ‘Fixed Network Services’) OR (Monthly Cost for Bill Code’s [Type 1] = ‘Fixed Network Services’ but this subr is not found in resell file [Ref: point 2])
+
+
+Monthly Cost = Monthly Cost 1 + Monthly Cost 2
+
+1.	BM Marketing provided 2 resell order files
+a.	Purpose
+i.	To capture extra cost
+ii.	To capture monthly cost for Bill Code’s Type 1 = ‘Fixed Network Services’
+b.	If [Subscriber Number] found, BOTH [Cost] (for Bill Code’s Type 1 = ‘‘Fixed Network Services’) and [Extra Cost] are referring from resell order files
+c.	No need to take care of [Vendor Name] ([Subscriber].[Subscription Info].[Corp Attr 24]) and resell order files from while Vendor
+
+2.	Monthly Cost
+-	For Bill Code’s Type 1 = ‘Fixed Network Services’ and Subr found in resell order files
+o	Monthly Cost 1 = Sum([Monthly Cost]) per Subr in resell order files
+-	Sum([Monthly Cost]) in resell order files is total monthly cost of all Bill Code’s Type 1 = ‘Fixed Network Services’
+
+
+
+
+
+MIG_ADW.U_BM_LD_HS_SUBSIDY_002_bak --back up prd_tmp.U_BM_LD_HS_SUBSIDY_002  20200710   1758
+
+MIG_ADW.D_BM_COMM_RPT_SUBR_bak  --back up prd_tmp.D_BM_COMM_RPT_SUBR  20200710  3510
+
+BILLIMG.T_BMRPT_TMP_SUMM_bak   --back up billimg.BMRPT_TMP_SUMM  20200710  1768
+
+
+
+
+
+    select distinct a.cust_num,
+           a.subr_num,
+           nvl(b.POS_PROD_CD,' ') as POS_PROD_CD,
+           nvl(b.inv_num,' ') as inv_num
+
+
+' ' > _ excel file  etl_src_file
+
+4523168656,
+
+test logic:::::
+select a.cust_num,a.subr_num,a.VENDOR_MTHLY_COST as MONTHLY_COST
+from MIG_ADW.Z_BM_LD_HS_SUBSIDY_003B a
+left outer join mig_adw.BM_COMM_RPT_ICT_EXCOST b
+on to_number(instr(','||replace(b.subr_num,' ','')||',',','||a.subr_num||',')) > 0
+where a.TYPE1 <> 'Fixed Network Services'
+      or a.TYPE1 = 'Fixed Network Services' 
+         and to_number(instr(','||replace(b.subr_num,' ','')||',',','||a.subr_num||',')) = 0
+
+
+
+
+
+
+
+
+about map monthly_cost two methods
+
+
+
+excel list fault
+
+
+SUBR_NUM
+8200819
+8200837
+8200838
+8200845
+
+CUST_NUM
+12171769
+12188831
+12196410
+12203399
+
+
+
+
+
+
+
+sum(to_number(nvl2(translate(a.extra_cost, '/1234567890.', ''), '0', a.extra_cost))) as extra_cost,
+                                       *
+ERROR at line 5:
+ORA-01722: invalid number
+-------------------
+MIG_ADW.Z_BM_LD_HS_SUBSIDY_003C2 MIG_ADW.Z_BM_LD_HS_SUBSIDY_003C3 trim
+
+group by a.inv_num;
+
+
+

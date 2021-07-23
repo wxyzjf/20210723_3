@@ -1,0 +1,578 @@
+dw_billimg_master_reload_e.ksh
+
+/home/bpbat/BILLIMG/script/b_bmrpt.ksh
+/app/BILLIMG/script/b_bmrpt.ksh
+
+
+BPFTPDIR = /home/bpbat/BILLIMG/dsdata/BMRPT> ls -l
+total 168
+FILE=BM_LD_HS_SUBSIDY.txt   BMRPT_PROFILE_TMP
+FILE2=unload_bm_act.txt  XX
+
+
+FTPDIR_1=/opt/etl/output/RPT/U_BM_LD_HS_SUBSIDY
+FTPDIR_2=/opt/etl/output/RPT/U_BM_ACT   XX
+
+
+OUTFILE1=/app/BILLIMG/output/bmrpt_output_rpt_${rptmth}.csv
+OUTFILE2=/app/BILLIMG/output/bmrpt_output_adj_${rptmth}.csv
+----------------------------------------------------------------------------------
+
+BMRPT_PROFILE_TMP  datastage and table
+
+rundsjobs  BMRPT_NON_REV_REF
+SELECT 
+      Trx_Type_Cd,
+      Nature,
+      Create_By,
+      Late_Upd_By,
+      Trx_Code,
+      Trx_Category
+FROM PRD_ADW.NON_REV_LEDGE_TYPE_REF
+
+rundsjobs  BMRPT_COMM_BILL_CD_REF "-param TrxMonth=$rptmth"
+SELECT 
+      to_char(Trx_Month,'yyyy-mm-dd'),
+      Bill_Serv_Cd,
+      Category,
+      SubCategory,
+      DetailedCategory
+ FROM PRD_ADW.BM_COMM_BILL_CD_REF
+where Trx_Month=to_date('#TrxMonth#','YYYY-MM-DD')
+
+
+BMRPT_ADJ_PAY_REF  datastage and table
+SELECT 
+      to_char(Image_Date,'yyyy-mm-dd'),
+      Sal_Trx_Type_Cd_Suffix,
+      Sal_Trx_Type_Cd_Prefix,
+      Category,
+      Profit_Adj_Grp_Desc,
+      Data_Trx,
+      Data_Subscript,
+      Nonrev_Ledger_Type
+FROM PRD_ADW.ADJ_PAY_BAK_LIST
+where Image_Date=to_date('#ImageDate#','YYYY-MM-DD')
+
+
+bmrpt_profile_tmp
+bmrpt_tmp_1
+bmrpt_tmp_2
+bmrpt_bill_tmp_1
+bmrpt_bill_tmp_2
+bmrpt_tmp_bill_dtl
+bmrpt_tmp_summ
+bmrpt_tmp_subs
+
+output:
+b_bmrpt_output_rpt.sql  from bmrpt_tmp_summ
+b_bmrpt_output_adj.sql  from bmrpt_tmp_excld_adjustment
+
+----------------------------------------------------------------------------------
+
+
+/opt/etl/output/RPT/U_BM_LD_HS_SUBSIDY
+/opt/etl/prd/etl/APP/RPT/U_BM_LD_HS_SUBSIDY/bin/u_bm_ld_hs_subsidy0010.pl
+
+
+
+${etlvar::AUTO_GEN_TEMP_PATH}u_bm_ld_hs_subsidy0010_sqlcmd.sql
+
+prd_tmp.U_BM_LD_HS_SUBSIDY_001
+prd_tmp.U_BM_LD_HS_SUBSIDY_001B
+
+prd_tmp.U_BM_LD_HS_SUBSIDY_002
+
+----------------------------------------------------------------------------------
+if want to create table or insert data also need to do following things:
+perl /home/bpbat/BILLIMG/reload/tools/crt_mu.pl
+
+
+/
+----------------------------------------------------------------------------------
+
+/home/bpbat/BILLIMG/reload/el> hostname
+etl06.smartone.com
+
+sftp adwftp@etl06
+ftp941abcd
+/adwftp/filein/tmp/el/bm
+----------------------------------------------------------------------------------
+/home/bpbat/BILLIMG/reload/el
+/opt/etl/filein/tmp/el/bm
+
+----------------------------------------------------------------------------------
+/opt/etl/prd/etl/APP/ADW/Y_BM_COMM_RPT_ICT_EXCOST/bin
+
+/opt/etl/prd/etl/APP/USR/X_BM_COMM_RPT_ICT_REF/bin/x_bm_comm_rpt_ict_ref0010.pl
+
+
+sqlplus /@$TDPID
+insert into prd_etl.etl_src_File(JOB_NAME,SYS_NAME,FILENAME_MASK,FILENAME_DATE_FORMAT,DATA_PATH,
+DATE_OFFSET,MONTH_OFFSET,
+CTRL_FILE_MASK,CTRL_FILE_OFFSET,CTRL_FILE_DATE_FORMAT,FILE_LOCATE_TYPE,
+CHECK_EA_FAIL_DIR_FLG,AS_OF_DATE_DETERMINE_METH,CHECK_ZERO_FILE_SIZE,LAST_PROCESS_STAT)
+values('D_BM_COMM_RPT_ICT_REF','USR','BM_Bill_Code_Type_v6_Copy.xlsx','%Y%m%d','/opt/etl/filein/tmp/el',
+0,0,
+' ',0,'%Y%m%d','copy',
+'N','T','N','C');
+commit;
+
+sqlplus /@$TDPID
+delete prd_etl.etl_received_file where etl_job='X_BM_COMM_RPT_ICT_REF';
+update prd_etl.etl_job set last_jobstatus='Ready' where etl_job = 'X_BM_COMM_RPT_ICT_REF';
+update prd_etl.etl_job set last_txdate=TO_DATE('2020-07-06','YYYY-MM-DD') where etl_job = 'X_BM_COMM_RPT_ICT_REF';
+update prd_etl.etl_src_file set last_process_start_ts=null where JOB_NAME='X_BM_COMM_RPT_ICT_REF';
+
+commit;
+touch /opt/etl/prd/etl/preprocess/USR/rerun/x_bm_comm_rpt_ict_ref.rerun.20200707
+
+----------------------------------------------------------------------------------
+
+
+MIG_ADW.X_BM_COMM_RPT_ICT_REF_b   -- backup  26801
+
+----------------------------------------------------------------------------------
+[8:25 AM] Stone Shek
+    $etlvar::DS_MLOAD = "Y";  # Y - indicate a multiload job and N - indicate a fastload job
+please set $etlvar::DS_MLOAD = "Y";  
+in perl script
+
+----------------------------------------------------------------------------------
+
+/opt/etl/prd/etl/preprocess/APS/script/D_MPS_TEAM_MANGER_EML.ksh
+
+/opt/etl/prd/etl/preprocess/APS/script/d_mps_team_manger_eml.pl
+
+    
+This is the special handler for converting xls to text file.
+----------------------------------------------------------------------------------
+IN_DATA_DIR = /opt/etl/prd/etl/preprocess/USR/work/w.20200702114826.13744.x_bm_comm_rpt_ict_ref_IN\n
+OUT_DATA_DIR = /opt/etl/prd/etl/preprocess/USR/work/w.20200702114826.13744.x_bm_comm_rpt_ict_ref_OUT\n
+
+
+----------------------------------------------------------------------------------
+
+/opt/etl/prd/etl/preprocess/USR/script/el
+
+/opt/etl/prd/etl/preprocess/USR/script/X_BM_COMM_RPT_ICT_REF.ksh
+/opt/etl/prd/etl/preprocess/USR/script/x_bm_comm_rpt_ict_ref.pl
+----------------------------------------------------------------------------------
+
+/opt/etl/filein/DataStage/USR/DATA/x_bm_comm_rpt_ict_excost_001.dat_x_bm_comm_rpt_ict_excost.txt_20150921
+/opt/etl/filein/DataStage/APS/DATA/d_mps_team_manager_eml_001.dat_Data_Rat_Account_manager_email_list_13July.txt_20150921
+/opt/etl/prd/etl/DATA/process/x_bm_comm_rpt_ict_excost_001.dat_x_bm_comm_rpt_ict_excost.txt_20200709
+
+----------------------------------------------------------------------------------
+MIG_ADW.U_BM_LD_HS_SUBSIDY_002_bak --back up prd_tmp.U_BM_LD_HS_SUBSIDY_002  20200710   1758
+
+MIG_ADW.D_BM_COMM_RPT_SUBR_bak  --back up prd_tmp.D_BM_COMM_RPT_SUBR  20200710  3510
+
+BILLIMG.T_BMRPT_TMP_SUMM_bak   --back up billimg.BMRPT_TMP_SUMM  20200710  1768
+
+BILLIMG.T_BMRPT_TMP_SUMM_bak2
+
+MIG_ADW.U_BM_LD_HS_SUBSIDY_002_BAK2  --back up update contract and ld cd   20200916 1758
+----------------------------------------------------------------------------------
+
+lftp ftpsvc01 -u SMC/dw_ftp,dw000000 -p 2026
+cd "/WORLD/TEAMWORK/CAD/BM - ICT/Fixed Network Services/Resell Order"
+07-09-20  10:58AM                82944 SMC Resell Order_HGC_UAT.xls
+07-09-20  10:58AM               287744 SMC Resell Order_HKBN_UAT.xls
+
+
+lftp ftpsvc01 -u SMC/dw_ftp,dw000000 -p 2026<<FOftp
+        set ftp:ssl-allow true
+        set ftp:ssl-force true
+        set ftp:ssl-protect-data true
+        set ftp:ssl-protect-list true
+        set ftps:initial-prot
+        set xfer:clobber on
+        cd "/WORLD/TEAMWORK/CAD/BM - ICT/Fixed Network Services/Resell Order"
+        mget "*.xls"
+        quit
+FOftp
+
+----------------------------------------------------------------------------------
+
+
+
+
+
+
+
+select
+    inv_num
+    ,cust_num
+    ,subr_num
+    ,ld_cd
+---max ld_expired_date ----
+from prd_adw.subr_ld_hist
+where
+    ----snapshot---
+    rpt_e_date between start_date and end_date
+    ----effective ld at month end-----
+and rpt_e_date between ld_start_date and ld_expired_date
+and ld_start_date >= add_months(&rpt_s_date,-5)
+and void_flg<>'Y' and wavied_flg<>'Y' and BILLED_FLG<>'Y'
+    ---Plan ld----
+and mkt_cd in (select mkt_cd from prd_adw.mkt_ref_vw where ld_revenue ='P')
+
+
+Select m_bill_reference,abs(t.transaction_amount),count(*)
+from (
+    select mb.bill_reference m_bill_reference           
+        ,ac.payment_method_name
+        ,transaction_amount
+    from bdf_bill mb
+        ,bdf_bill sb
+        ,bdf_acc_trans_details ac                  
+    where mb.bill_reference ='1278818206'
+      and mb.customer_reference = sb.customer_reference
+      and mb.actual_bill_date = sb.actual_bill_date
+      and sb.bill_reference = ac.bill_reference )t
+  left outer join bdf_payment_method pm
+        on substr(pm.payment_method_name,1,5) = t.payment_method_name
+ where substr(pm.payment_method_name,7,3)='ADJ'
+    group by m_bill_reference,abs(t.transaction_amount)
+    having count(*)=2,sum(t.transaction_amount)=0
+  ;
+
+ 
+select m_bill_reference,abs(transaction_amount),count(*) from(
+select t.m_bill_reference
+      ,t.customer_reference
+      ,t.actual_bill_date
+      ,t.s_bill_reference
+      ,t.payment_method_name,pm.payment_method_name 
+      ,t.transaction_amount
+from 
+( 
+select mb.bill_reference m_bill_reference
+      ,mb.customer_reference
+      ,mb.actual_bill_date
+      ,sb.bill_reference s_bill_reference
+      ,ac.payment_method_name
+      ,ac.transaction_amount
+    from bdf_bill mb
+        ,bdf_bill sb
+        ,bdf_acc_trans_details ac
+    where mb.bill_reference ='1278818206'
+          and mb.customer_reference = sb.customer_reference
+          and mb.actual_bill_date = sb.actual_bill_date
+          and sb.bill_reference = ac.bill_reference
+)t left outer join bdf_payment_method pm
+on substr(pm.payment_method_name,1,5) = t.payment_method_name
+where substr(pm.payment_method_name,7,3)='ADJ'
+)group by m_bill_reference,abs(transaction_amount)
+having count(*)=2 and sum(transaction_amount)=0
+
+
+
+select bill_reference,sum(TRANSACTION_AMOUNT) as TRANSACTION_AMOUNT
+from (
+select distinct tmp.bill_reference
+       --,mb.bill_reference m_bill_reference
+       --,mb.customer_reference
+       --,mb.actual_bill_date
+       --,sb.bill_reference s_bill_reference
+        --,ac.payment_method_name
+        ,abs(ac.transaction_amount) as TRANSACTION_AMOUNT
+        --,count(*)
+        --,pm.payment_method_name
+from billimg.bmrpt_tmp_summ tmp
+left outer join billimg.bdf_bill mb
+    on tmp.bill_reference = mb.bill_reference 
+inner join billimg.bdf_bill sb
+    on mb.customer_reference = sb.customer_reference
+      and mb.actual_bill_date = sb.actual_bill_date
+inner join billimg.bdf_acc_trans_details ac 
+    on sb.bill_reference = ac.bill_reference
+  inner join billimg.bdf_payment_method pm
+        on substr(pm.payment_method_name,1,5) = ac.payment_method_name
+           and substr(pm.payment_method_name,7,3)='ADJ'
+where mb.bill_reference is not null
+group by tmp.bill_reference,abs(ac.transaction_amount)
+ having count(*) = 2 and sum(ac.transaction_amount)=0
+  ) group by bill_reference    
+
+    
+
+
+
+
+
+
+select
+     max(inv_num) keep (dense_rank first order by ld_expired_date desc) as inv_num
+    ,cust_num
+    ,subr_num
+    ,max(ld_cd) keep (dense_rank first order by ld_expired_date desc) as ld_cd
+    --,substr(max(ld_cd) keep (dense_rank first order by ld_expired_date desc),4,2) as CONTRACT_MONTHS
+from prd_adw.subr_ld_hist
+where
+     --CUST_NUM = '10562534' and SUBR_NUM = '93163165' and
+      to_date('20200531','yyyymmdd') between start_date and end_date
+and to_date('20200531','yyyymmdd') between ld_start_date and ld_expired_date
+and ld_start_date >= add_months(to_date('20200501','yyyymmdd'),-5)
+and void_flg<>'Y' and waived_flg<>'Y' and BILLED_FLG<>'Y'
+and mkt_cd in (select mkt_cd from prd_adw.mkt_ref_vw where ld_revenue ='P') 
+group by cust_num,subr_num
+
+
+
+
+
+
+
+
+
+
+
+with tbl as (
+    Select
+             h.batch_id
+            ,h.shk_tier
+            ,decode(h.ru_plan_mix_nature,' ','UNMAP',h.ru_plan_mix_nature)ru_plan_mix_nature
+            ,decode(h.ru_plan_mix_sub_nature,' ','UNAMP',h.ru_plan_mix_sub_nature)ru_plan_mix_sub_nature
+            ,count(h.subr_num) cnt_sub_nature                      
+         from mig_adw.SHKDP_RPT_h h
+         --where h.cl_hit like 'HIT%'
+         group by h.batch_id
+                 ,h.shk_tier
+                 ,h.ru_plan_mix_nature
+                 ,h.ru_plan_mix_sub_nature
+)
+select 
+       ttg.ru_plan_mix_nature
+      ,ttg.ru_plan_mix_sub_nature
+      ,ttg.rnk_nature
+      ,ttg.rnk_sub_nature
+      ,decode(label_type,'NATURE_HEADER',ttg.ru_plan_mix_nature,ttg.ru_plan_mix_sub_nature) display_nature
+      ,tt.batch_id
+      ,tt.shk_tier      
+      ,tt.ptg          
+from(----- prepare the label order---     
+        select distinct
+           'NATURE_HEADER' label_type  
+          ,tg.ru_plan_mix_nature
+          ,' ' as ru_plan_mix_sub_nature
+          ,dense_rank()over (partition by tg.batch_id order by tg.ru_plan_mix_nature) rnk_nature
+          ,0 rnk_sub_nature     
+     from tbl tg
+    union all 
+    select distinct
+           'NATURE_DTL' label_type
+          ,tg.ru_plan_mix_nature
+          ,tg.ru_plan_mix_sub_nature
+          ,dense_rank()over (partition by tg.batch_id order by tg.ru_plan_mix_nature) rnk_nature
+          ,dense_rank()over (partition by tg.batch_id ,tg.ru_plan_mix_nature order by tg.ru_plan_mix_nature,tg.ru_plan_mix_sub_nature) rnk_sub_nature     
+     from tbl tg
+     ) ttg
+left outer join(------ Counting the detail              
+  select   t.batch_id
+            ,t.shk_tier
+            ,t.ru_plan_mix_nature
+            ,t.ru_plan_mix_sub_nature
+            ,t.cnt_sub_nature / sum(t.cnt_sub_nature) over(partition by t.batch_id,t.shk_tier) as ptg
+    from tbl t
+    union all  
+    select   distinct t.batch_id
+            ,'TOTAL'  as shk_tier
+            ,t.ru_plan_mix_nature
+            ,t.ru_plan_mix_sub_nature            
+            ,sum(t.cnt_sub_nature) over (partition by t.batch_id,t.ru_plan_mix_nature,t.ru_plan_mix_sub_nature)   
+            / sum(t.cnt_sub_nature) over(partition by t.batch_id) as ptg
+    from tbl t               
+ )tt
+ on ttg.label_type='NATURE_DTL' and ttg.ru_plan_mix_nature =tt.ru_plan_mix_nature and ttg.ru_plan_mix_sub_nature = tt.ru_plan_mix_sub_nature
+ order by ttg.rnk_nature,ttg.rnk_sub_nature
+ 
+ 
+ 
+ 
+ 
+insert into MIG_ADW.U_BM_LD_HS_SUBSIDY_002_BAK2 
+select tmpa.CUST_NUM,
+tmpa.SUBR_NUM,
+tmpa.ACCT_NUM,
+tmpa.HKID_BR,
+tmpa.SUBR_SW_ON_DATE,
+tmpa.SUBR_SW_OFF_DATE,
+tmpa.SUBR_STAT_CD,
+tmpa.DEALER_CD,
+nvl(tmpb.CONTRACT_MONTHS,1) as MAX_LD_PERIOD,
+nvl(tmpb.ld_cd,' ') as LD_CD,
+tmpa.HS_SUBSIDY_AMT,
+tmpa.D_LD_CD_NATURE_N,
+tmpa.NET_OUT_ROAM_REV from MIG_ADW.U_BM_LD_HS_SUBSIDY_002_BAK tmpa
+left outer join( 
+select
+     max(inv_num) keep (dense_rank first order by ld_expired_date desc) as inv_num
+    ,cust_num
+    ,subr_num
+    ,max(ld_cd) keep (dense_rank first order by ld_expired_date desc) as ld_cd
+    ,max(substr(ld_cd,4,2)) keep (dense_rank first order by ld_expired_date desc) as CONTRACT_MONTHS
+from prd_adw.subr_ld_hist
+where
+     --CUST_NUM = '10562534' and SUBR_NUM = '93163165' and
+      to_date('20200531','yyyymmdd') between start_date and end_date
+and to_date('20200531','yyyymmdd') between ld_start_date and ld_expired_date
+and ld_start_date >= add_months(to_date('20200501','yyyymmdd'),-5)
+and void_flg<>'Y' and waived_flg<>'Y' and BILLED_FLG<>'Y'
+and mkt_cd in (select mkt_cd from prd_adw.mkt_ref_vw where ld_revenue ='P') 
+group by cust_num,subr_num
+) tmpb on tmpa.cust_num = tmpb.cust_num and tmpa.subr_num = tmpb.subr_num
+
+
+
+
+bak u_bm_ld_hs_subsidy0010.pl.20200916
+/opt/etl/output/RPT/U_BM_LD_HS_SUBSIDY/bak.BM_LD_HS_SUBSIDY_202009.txt
+MIG_ADW.U_BM_LD_HS_SUBSIDY_002T
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+with tbl as (
+         select t.m_bill_reference
+               ,t.customer_reference
+               ,t.actual_bill_date
+               ,t.s_bill_reference
+               ,t.payment_method_name,pm.payment_method_name 
+               ,t.transaction_amount
+         from 
+         ( 
+         select mb.bill_reference m_bill_reference
+               ,mb.customer_reference
+               ,mb.actual_bill_date
+               ,sb.bill_reference s_bill_reference
+               ,ac.payment_method_name
+               ,ac.transaction_amount
+             from bdf_bill mb
+                 ,bdf_bill sb
+                 ,bdf_acc_trans_details ac
+             where mb.bill_reference ='1278818206'
+                   and mb.customer_reference = sb.customer_reference
+                   and mb.actual_bill_date = sb.actual_bill_date
+                   and sb.bill_reference = ac.bill_reference
+         )t left outer join bdf_payment_method pm
+         on substr(pm.payment_method_name,1,5) = t.payment_method_name
+         where substr(pm.payment_method_name,7,3)='ADJ'
+)
+select 
+       ttg.m_bill_reference
+      ,ttg.transaction_amount
+      ,ttg.s_bill_reference
+      ,tt.transaction_amount
+from( select tt1.m_bill_reference,tt1.transaction_amount,tt1.s_bill_reference from tbl tt1
+      where tt1.m_bill_reference = tt1.s_bill_reference
+     ) ttg
+left outer join(     
+      select tt2.m_bill_reference,abs(tt2.transaction_amount) as transaction_amount,count(*) from tbl tt2
+                     group by tt2.m_bill_reference,abs(tt2.transaction_amount) having count(*)=2 and sum(tt2.transaction_amount)=0            
+ )tt
+     on abs(ttg.transaction_amount) = abs(tt.transaction_amount) 
+    where tt.transaction_amount is null
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[Subscriber].[Profiling - Subr].[Account Manager]
+ 
+select distinct
+       case when (VW_SUBR_AC_MGR_HIST.Account_Mgr is NULL) then ' ' else VW_SUBR_AC_MGR_HIST.Account_Mgr end   as  Account_Manager
+ from
+       (select
+              ACCOUNT_MGR as Account_Mgr
+        from
+              TD_PRD_BI..PRD_BIZ_SUMM_VW.VW_SUBR_AC_MGR_HIST) VW_SUBR_AC_MGR_HIST
+
+
+
+
+
+select * from prd_tmp.U_BM_LD_HS_SUBSIDY_002T where subr_num = '91655055'
+24    LDJ24M463
+
+select * from prd_tmp.U_BM_LD_HS_SUBSIDY_002 where subr_num = '91655055'
+36    LDJ36M468
+
+
+select
+     max(inv_num) keep (dense_rank first order by ld_expired_date desc) as inv_num
+    ,cust_num
+    ,subr_num
+    ,max(ld_cd) keep (dense_rank first order by ld_expired_date desc) as ld_cd
+    ,max(substr(ld_cd,4,2)) keep (dense_rank first order by ld_expired_date desc) as CONTRACT_MONTHS
+from prd_adw.subr_ld_hist
+where
+      (to_date('$etlvar::F_D_MONTH[0]' , 'YYYY-MM-DD') -1) between start_date and end_date
+and (to_date('$etlvar::F_D_MONTH[0]' , 'YYYY-MM-DD') -1) between ld_start_date and ld_expired_date
+and ld_start_date >= add_months(to_date('$etlvar::F_D_MONTH[0]' , 'YYYY-MM-DD'),-6)
+and void_flg<>'Y' and waived_flg<>'Y' and BILLED_FLG<>'Y'
+and mkt_cd in (select mkt_cd from prd_adw.mkt_ref_vw where ld_revenue ='P')
+group by cust_num,subr_num
+
+
+
+ where
+--(to_date('2020-06-01' , 'YYYY-MM-DD') -1) between start_date and end_date
+--and (to_date('2020-06-01' , 'YYYY-MM-DD') -1) between ld_start_date and ld_expired_date
+-- and ld_start_date >= add_months(to_date('2020-06-01' , 'YYYY-MM-DD'),-6)
+-- and void_flg<>'Y' and waived_flg<>'Y' and BILLED_FLG<>'Y'
+--mkt_cd in (select mkt_cd from prd_adw.mkt_ref_vw where ld_revenue ='P')
+  subr_num = '91655055'
+
+
+select subr_num,LD_CD,mkt_cd from prd_adw.subr_ld_hist 
+where LD_CD in ('LDJ36M468','LDJ24M463') and subr_num = '91655055'
+91655055    LDJ36M468    N
+91655055    LDJ24M463    LDIPH
+
+select mkt_cd from prd_adw.mkt_ref_vw 
+where ld_revenue ='P' and MKT_CD in ('N','LDIPH')
+
+
+
+
+
+
+File folder:\\gzpc-master7\IS-Dev\GZDWTeam\enhancement\BM commission(Contract Renewal and New Activation)
+
+
+

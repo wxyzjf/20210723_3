@@ -1,0 +1,55 @@
+explain plan for select * from VW_DR_FW_CDR_ALL where row_key='010.131.043.174_20200504071658' and row_key<='010.131.043.174_20200504155024';
+
+select count(*) from dfs.vw.VW_DR_FW_CDR_ALL where row_key between '001.000.000.001_00000000000000' and '001.000.000.001_99999999999999'
+and src='1.0.0.1';
+
+ select count(*) from dfs.vw.VW_DR_FW_CDR_ALL where row_key like '001.000.000.001_%' and src='1.0.0.1';
+
+
+use dfs;
+select * from `/HDS_VOL_HBASE/FW_CDR_TEST` limit 10;
+
+
+select * from maprfs:///HDS_VOL_HBASE/FW_CDR_06` limit 10;
+
+
+
+create or replace view VW_DR_FW_CDR (
+  row_key,
+  src,
+  start_datetime,
+  send_volume,
+  receive_volume,
+  service,
+  dst
+) as
+SELECT * FROM VW_DR_FW_CDR_ALL;
+
+
+
+prd_adw.IDP_CALL_LOG_DETAILS; --124.9/434  =294.7M per day
+mig_adw.IDP_FAMILYPLN_DAY_DATA_USG; --4.6/582  =8M per day
+mig_adw.IDP_POSTPD_USG_PATT_HIST; --51/459 =113.8M per day
+prd_adw.PRF_SUBR_INFO; --9/167 =55.2M per trx_month
+
+
+PRD_ADW.IDP_CALL_LOG_DETAILS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

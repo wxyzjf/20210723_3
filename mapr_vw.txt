@@ -1,0 +1,143 @@
+ 
+ sqlline -u "jdbc:drill:zk=bigdatamr08.hksmartone.com:5181,bigdatamr09.hksmartone.com:5181,bigdatamr10.hksmartone.com:5181" -n hdsbat -p smart123 
+
+ explain plan for select * from VW_DR_FW_CDR where row_key='010.131.043.174_20200504071658' and row_key<='010.131.043.174_20200504155024'
+
+create view VW_DR_FW_CDR (
+  row_key,
+  src,
+  start_datetime,
+  send_volume,
+  receive_volume,
+  service,
+  dst
+) as
+SELECT
+  `t`.`row_key`,
+  `t`.`cf`['src'],
+  CAST(`t`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t`.`cf`['service'] AS `service`,
+  `t`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_TEST` AS `t`
+UNION ALL
+SELECT
+  `t1`.`row_key`,
+  `t1`.`cf`['src'],
+  CAST(`t1`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t1`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t1`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t1`.`cf`['service'] AS `service`,
+  `t1`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_01` AS `t1`
+UNION ALL
+SELECT
+  `t2`.`row_key`,
+  `t2`.`cf`['src'],
+  CAST(`t2`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t2`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t2`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t2`.`cf`['service'] AS `service`,
+  `t2`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_02` AS `t2`
+UNION ALL
+SELECT
+  `t3`.`row_key`,
+  `t3`.`cf`['src'],
+  CAST(`t3`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t3`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t3`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t3`.`cf`['service'] AS `service`,
+  `t3`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_03` AS `t3`
+UNION ALL
+SELECT
+  `t4`.`row_key`,
+  `t4`.`cf`['src'],
+  CAST(`t4`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t4`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t4`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t4`.`cf`['service'] AS `service`,
+  `t4`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_04` AS `t4`
+UNION ALL
+SELECT
+  `t5`.`row_key`,
+  `t5`.`cf`['src'],
+  CAST(`t5`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t5`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t5`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t5`.`cf`['service'] AS `service`,
+  `t5`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_05` AS `t5`
+UNION ALL
+SELECT
+  `t6`.`row_key`,
+  `t6`.`cf`['src'],
+  CAST(`t6`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t6`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t6`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t6`.`cf`['service'] AS `service`,
+  `t6`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_06` AS `t6`
+UNION ALL
+SELECT
+  `t7`.`row_key`,
+  `t7`.`cf`['src'],
+  CAST(`t7`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t7`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t7`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t7`.`cf`['service'] AS `service`,
+  `t7`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_07` AS `t7`
+UNION ALL
+SELECT
+  `t8`.`row_key`,
+  `t8`.`cf`['src'],
+  CAST(`t8`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t8`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t8`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t8`.`cf`['service'] AS `service`,
+  `t8`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_08` AS `t8`
+UNION ALL
+SELECT
+  `t9`.`row_key`,
+  `t9`.`cf`['src'],
+  CAST(`t9`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t9`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t9`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t9`.`cf`['service'] AS `service`,
+  `t9`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_09` AS `t9`
+UNION ALL
+SELECT
+  `t10`.`row_key`,
+  `t10`.`cf`['src'],
+  CAST(`t10`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t10`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t10`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t10`.`cf`['service'] AS `service`,
+  `t10`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_10` AS `t10`
+UNION ALL
+SELECT
+  `t11`.`row_key`,
+  `t11`.`cf`['src'],
+  CAST(`t11`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t11`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t11`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t11`.`cf`['service'] AS `service`,
+  `t11`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_11` AS `t11`
+UNION ALL
+SELECT
+  `t12`.`row_key`,
+  `t12`.`cf`['src'],
+  CAST(`t12`.`cf`['start_datetime'] AS TIMESTAMP) AS `start_datetime`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t12`.`cf`['json_value'], 'UTF8'))['send_volume'], '####.###'), 0) AS `send_volume`,
+  `nvl`(`to_number`(`convert_fromjson`(`convert_from`(`t12`.`cf`['json_value'], 'UTF8'))['receive_volume'], '####.###'), 0) AS `receive_volume`,
+  `t12`.`cf`['service'] AS `service`,
+  `t12`.`cf`['dst'] AS `dst`
+FROM `dfs`.`/HDS_VOL_HBASE/FW_CDR_12` AS `t12`;

@@ -1,0 +1,577 @@
+parquet tool test in bigdataetl02
+
+select a ip to test speed
+test repartition  in bigdatamr08-10
+test in bigdatamr08-10 to use memory
+prepare a script to load in parquet instead of loading in mapr
+check string min max
+
+pkey file 3days
+
+256m row group
+
+
+drill cp file
+
+default row group size and block size
+------------------------------------------------------------
+ explain plan for select * from `dfs`.`/HDS_VOL_TMP/el_oneday/bigdataetl02/el_oneday/pkey=*/*` where srcip_num='1034180047' and dstip_num='121202151244';
+
+ explain plan for select * from `dfs`.`/HDS_VOL_TMP/el_oneday/bigdataetl02/el_oneday` where srcip_num='1034180047' and dstip_num='121202151244';
+
+    select * from "dir" where pkey=1 and srcip_num XXXXX
+
+select * from "dir" where pkey=1 and srcip_num XXXXX and trx_date = 0725
+
+------------------------------------------------------------
+
+matplotlib
+
+Reconfigure bigdatamr08 -10 cluster with 835 gb and 150cores
+------------------------------------------------------------
+pkey=__HIVE_DEFAULT_PARTITION__
+------------------------------------------------------------
+darrel abc()
+
+------------------------------------------------------------
+3day big8-10  02
+
+------------------------------------------------------------
+
+    parquet test case phaes II   big8-10  02
+    1) one day fwcdr convert to parquet with no partition by but sortwithinpartition(srcip_num) only
+    2) spark write partition by (pkey)
+    3) reformat the fields back to original 180-132-443 -> 180,130,443
+------------------------------------------------------------
+
+
+------------------------------------------------------------
+
+
+------------------------------------------------------------
+only can hadoop jar parquet tool with hdfs?but not local file?
+------------------------------------------------------------
+
+string can check min max
+
+------------------------------------------------------------
+
+[6:49 AM] Kevin Ou
+    一直怀疑紧etl02 不碎是因为单executor的原因。
+​[6:50 AM] Kevin Ou
+    最烦的是我找不到方法去验证hive 个parquet rowgroup scan
+​[6:50 AM] Kevin Ou
+    感觉它没用谓词下推
+
+
+
+
+------------------------------------------------------------
+
+
+------------------------------------------------------------
+how to drop hive table without rm dir
+start=20200723  file name
+
+------------------------------------------------------------
+
+或者我给一个这样的需求。 我要select 2个月的data by src ip ，速度要控制在2mins 以内。
+or no sort jost repar and partition by
+------------------------------------------------------------
+
+------------------------------------------------------------
+                                                   ('spark.sql.shuffle.partitions',100),\
+                                                   ('spark.default.parallelism',100),\
+------------------------------------------------------------
+
+('spark.default.parallelism',100)  cluster
+------------------------------------------------------------
+
+
+etl06
+------------------------------------------------------------
+
+confirm 8088 schedule space and memory or then
+
+444
+dinamy  test
+spark.dynamicAllocation.minExecutors, spark.dynamicAllocation.maxExecutors, and spark.dynamicAllocation.initialExecutors spark.dynamicAllocation.executorAllocationRatio
+
+
+
+8-10 test job
+
+
+111
+[2:04 AM] Kevin Ou
+    有人有空闲的话研究下有什么方法或者command 生成parquet file 而不需要用spark 的。 例如load firewall cdr awk |split 完之后直接从管道出parquet file
+​[2:06 AM] Kevin Ou
+    因为awk 本身就可以 实现 partition的功能
+
+https://github.com/apache/parquet-mr/tree/master/parquet-cli
+
+
+8-10 load
+
+
+
+
+
+
+222
+[6:41 AM] Barry Lu
+    bigdataetl01 
+​[6:42 AM] Barry Lu
+    ~/hdsbat/script/dw_load_ssl_udr.sh 
+​[6:42 AM] Barry Lu
+    dw_load_ssl_udr.awk
+
+555
+matlib panda jupyter
+
+
+
+
+hadoop fs -mkdir maprfs://bigdatamr08-10g:7222/tmp/el/smcin/part_key=20200720
+hadoop fs -chmod 777 maprfs://bigdatamr08-10g:7222/tmp/el/smcin/part_key=20200720
+hadoop distcp /HDS_VOL_HIVE/smcin/part_key=20200720/* maprfs://bigdatamr08-10g.hksmartone.com/tmp/el/smcin/part_key=20200720
+
+hadoop distcp maprfs://bigdataetl01g.hksmartone.com/HDS_VOL_HIVE/FWCDR/start_date=20200602 /HDS_VOL_TMP/el_oneday/bigdataetl02/src
+
+
+
+
+------------------------------------------------------------
+
+
+
+decimal spark hive
+
+
+------------------------------------------------------------
+
+
+
+
+hadoop distcp /HDS_VOL_HIVE/FWCDR/start_date=20200602 maprfs://bigdatamr08-10g.hksmartone.com/HDS_VOL_TMP/el_oneday/bigdataetl02/src
+
+
+
+
+
+
+
+
+
+
+hadoop jar /home/hdsbat/parquet-tools-1.11.0.jar convert file:///app/HDSBAT/eloisewu/fwcdr_ldr_01203.gz
+
+
+
+
+
+
+paper
+
+
+
+  pkey string or pkey int
+
+
+
+alter table h_fw_el change srcip_num srcip_num bigint;
+
+
+
+                                                   ('spark.default.parallelism',100),\
+                                                   ('spark.sql.shuffle.partitions',100)\
+
+
+
+
+
+
+
+discp
+
+
+
+how to check hdfs df
+
+ict job
+
+bigdatamr08 还有10t的位置。可以人手copy 整个8月份过去转了
+
+
+
+matlib panda jupyter
+
+ppt
+
+chmod
+
+
+
+
+java parquet
+
+
+
+[8/7 6:41 AM] Barry Lu
+    bigdataetl01 
+​[8/7 6:42 AM] Barry Lu
+    ~/hdsbat/script/dw_load_ssl_udr.sh 
+​[8/7 6:42 AM] Barry Lu
+    
+
+dw_load_ssl_udr.awk
+
+my load fwcdr job
+
+dw_load_fwcdr.sh
+dw_fwcdr_convert.awk
+
+jar parquet tool：：：
+http://www.openkb.info/2015/02/how-to-build-and-use-parquet-tools-to.html
+ultimate -n 
+
+crontab
+
+daily run job fwcdr
+
+test hive rowgroup
+chmod +x
+
+outlook mail
+
+
+(base) [hdsbat@bigdataetl02 reload]$ pwd
+/app/reload
+
+
+kelvin ea info
+
+
+from (select ACCOUNT,MSISDN,USER_ID,START_DATE,END_DATE
+      from ${etlvar::ADWDB}.NORTON_ACR_MAP
+      where &rpt_e_date  between START_DATE and END_DATE) a
+left outer join ${etlvar::ADWDB}.bill_servs b
+on a.ACCOUNT = b.CUST_NUM and a.MSISDN = b.SUBR_NUM
+   and b.BILL_END_DATE >= &rpt_s_date
+   and b.BILL_START_DATE <= &rpt_e_date
+
+
+
+
+
+define rpt_s_date=trunc(add_months(to_date('${etlvar::TXDATE}','YYYY-MM-DD'),-1),'mm');
+define rpt_e_date=last_day(add_months(to_date('${etlvar::TXDATE}','YYYY-MM-DD'),-1));
+
+
+
+  ,case when trunc(b.BILL_START_DATE,'mm') =  trunc(add_months(to_date('${etlvar::TXDATE}','YYYY-MM-DD'),-1),'mm')    --&rpt_s_date
+
+---------------------------------------------------------------------------------------------
+bigdatetl02
+[8/14 4:13 AM] Kevin Ou
+    做个统计by file的日子
+​[8/14 4:13 AM] Kevin Ou
+    count 每日几多个file
+​[8/14 4:13 AM] Kevin Ou
+    话个图看看增长
+​[8/14 4:14 AM] Kevin Ou
+    bigdataetl02
+​[8/14 4:15 AM] Kevin Ou
+    
+
+group by ： Jul 20 那两个fields 
+
+​[8/14 4:15 AM] Kevin Ou
+    count files 数
+[8/14 4:16 AM] Kevin Ou
+    pandas read files 做group by 然后出去matplot 话图
+​[8/14 4:16 AM] Kevin Ou
+    参考上次个sample
+
+
+讲埋个backupground。 我地怀疑 md 有一段时间send 了好多file 过来 可能过万。我想by file 的日子分析下
+x 轴time y轴 count
+
+pandas 可以先组合column再group by
+
+
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+dtype_dic= { '1':str, '2':str, '3':str,'4':str, '5':str, '6':str, '7':str, '8':str,'9':str}
+df=pd.read_csv("/app/reload/2t_list.log",sep='\s+',header=0,dtype = dtype_dic)
+
+
+y_list=df.sort_values(by=['6','7']).groupby(['6','7']).size()
+print (y_list.to_list())
+
+
+df["date"] = df["6"].astype(str) + '.' +  df["7"].astype(str)
+x_list=df["date"].sort_values(ascending=True).unique()
+
+print(x_list)
+
+
+plt.rcParams["figure.figsize"] = (16, 8)
+
+plt.title("md files")
+plt.xlabel("date")
+plt.ylabel("count")
+
+plt.plot(x_list,y_list)
+ 
+plt.show()
+
+
+
+
+
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+dtype_dic= { '1':str, '2':str, '3':str,'4':str, '5':str, '6':str, '7':str, '8':str,'9':str}   ???
+df=pd.read_csv("/app/reload/2t_list.log",sep='\s+',header=0,dtype = dtype_dic)
+
+df["date"] = df["6"].astype(str) + '.' +  df["7"].astype(str)
+
+y_list=df.sort_values(by=['date']).groupby(['date']).size()
+print (y_list)
+
+x_list=df.sort_values(by=['date']).groupby(['date']).groups.keys()
+print(x_list)
+
+plt.rcParams["figure.figsize"] = (16, 8)
+
+plt.title("md files")
+plt.xlabel("date")
+plt.ylabel("count")
+
+plt.plot(x_list,y_list)
+ 
+plt.show()
+
+
+
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+df=pd.read_csv("/app/HDSBAT/eloisewu/mem.log",sep='|',header=None)
+#print(df)
+y_list_mem=df[2].to_list()
+print (y_list_mem)
+
+x_list=range(0,len(y_list_mem))
+plt.rcParams["figure.figsize"] = (8, 8)
+
+plt.title("Interactive Plot")
+plt.xlabel("Cnt")
+plt.ylabel("MEM used")
+
+plt.plot(x_list,y_list_mem,label='mem')
+ 
+plt.show()
+
+
+
+
+
+
+
+
+
+support
+
+Stone  check
+
+
+
+
+20200824：
+new job  pandas  xlrd
+ppt
+
+
+
+daily run
+
+support
+
+sub_eloisewu
+
+
+dw_hkrevrpt_rpt
+
+
+It doesn't matter
+
+
+
+20200831：
+M55082069 remove
+nsp
+
+remote
+ 
+irene 5g  hpp step email view
+
+norton
+ict
+  
+mddb  bat file log
+
+daily load fwcdr hive script mutt
+
+https://pandas.pydata.org/docs/pandas.pdf
+
+\\GZPC-MASTER7\IS-Dev\GZDWTeam\enhancement\SR000000_SHK_REPORT_AUTOMATE\DOC
+
+
+交换分区的数据不影响create_ts
+
+
+%date:~-4%-%date:~4,2%-%date:~7,2%_%time:~1%
+
+%date:~-4%-%date:~4,2%-%date:~7,2%_%time:~1%
+
+
+darrel kelvin irene
+
+
+
+
+sum(decode(shk_sale_tag,'5G_POTENTIAL',1,0))
+count(decode(shk_sale_tag,'5G_POTENTIAL',1,0))
+
+sum(case when cl_sale_type='UP_SELL' then bf_plan_tariff else 1 end) as disp_val
+
+
+                ,sum(case when cl_sale_type='UP_SELL' then bf_plan_tariff else 0 end) as disp_val--/
+                ,decode(sum(case when cl_sale_type='UP_SELL' then af_plan_tariff else 0 end),0,1,sum(case when cl_sale_type='UP_SELL' then af_plan_tariff else 0 end)) as disp_val2
+                
+==
+                ,sum(decode(cl_sale_type,'UP_SELL',bf_plan_tariff,0)) as disp_val--/
+                ,decode(sum(decode(cl_sale_type,'UP_SELL',af_plan_tariff,0)),0,1,sum(decode(cl_sale_type,'UP_SELL',af_plan_tariff,0))) as disp_val2
+
+
+
+
+
+
+
+
+
+
+
+sed -e "s/\[PARAM\]/"$f"/g" ic_tpl.sql  > ./ic_1.sql
+weekly work
+
+
+
+
+
+case when like
+case when reach=0 then 0 else hit/reach
+
+rpt + %  .123
+小数后两位
+
+others
+*1000
+1
+20000
+for 
+
+VARCHAR2(50 BYTE)
+
+
+ru_plan_mix_sub_nature   VARCHAR2(100 BYTE)           DEFAULT ' ',
+
+         --where h.cl_hit like 'HIT%'
+
+
+
+[4:15 AM] Kevin Ou
+    Oh , sorry. Loop batch_id and af_comm_channel
+​[4:15 AM] Kevin Ou
+    RunRptDate is a job parameter 
+​[4:16 AM] Kevin Ou
+    Of course you can treat as 3 parameters and pass to every report generation request.
+
+
+
+
+
+
+
+
+
+
+trx_date
+delear_name
+
+contractmonth
+
+bmrpt_ld
+
+
+notify ea
+
+
+ea log
+
+   billimg.bmrpt_tmp_summ a.DEALER_CD,   ld  ldmonths
+
+
+
+distinct bill_reference from billimg.bmrpt_tmp_summ
+
+
+must to remove BM_LD_HS_SUBSIDY_2_202006.csv
+
+shk table col not null
+nvl(tt.ptl,'0%') error
+
+0.00%
+
+            ,case when sum(t.cnt_sub_nature) over(partition by t.batch_id,t.shk_tier) = 0
+                  then 0
+                  else t.cnt_sub_nature / sum(t.cnt_sub_nature) over(partition by t.batch_id,t.shk_tier)
+             end as ptg
+
+
+
+全速登6非凡計劃
+pandas
+
+3 params
+
+
+    Trim(b.Subr_Sw_Off_Date) || '|' ||
+    Trim(b.Subr_Stat_Cd) || '|' ||
+
+
+
+LD.csv
+bonnie bill_reference email compare with kevin logic
+
+m_bill_reference = s_bill_reference
+
+
+
+select * from all_tab_columns where column_name like 'CHRG_NATURE' AND TABLE_NAME LIKE 'NBIOT%'
+
+
+vm
+BILLIMG.bmrpt_ict_tmp_summ_01T
+https://pandas.pydata.org/docs/pandas.pdf
+
+b_gprs_usg_brkdn_summ.ksh
+billimg.TMP_GPRS_USG_BRKDN_SUMM_01

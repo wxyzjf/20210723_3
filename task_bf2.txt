@@ -1,0 +1,103 @@
+
+    worksheet :SMS Commission Template_Trans
+
+    
+
+bill_reference : 1281697841 (subr ?) customer_reference: 09363315 subr_num 55969555 actual_bill_date 2020-10-02
+Select * from bdf_bill where bill_reference ='1281697841' 
+select * from bdf_event_list where bill_reference ='1281697841'
+               
+bdf_event_list 
+join ---Select * from  receivableclass
+join --- Select * from BILLIMG.AIRTM_BRKDN_REF
+
+
+​[4:25 PM] Kevin Ou
+    \\gzpc-master7\IS-Dev\GZDWTeam\enhancement\SR0000000DRS and SMS Commission
+​[4:25 PM] Kevin Ou
+    Design_SMS_COMM.xlsx
+​[4:28 PM] Kevin Ou
+    result 最终是 1 条 bill_reference 1 条record
+
+
+
+
+
+perl /home/bpbat/BILLIMG/reload/tools/crt_mu.pl
+
+
+GRANT SELECT ON BILLIMG.BM_SMS_COMM_03_T TO BP_CGN;
+
+
+
+
+
+
+Just have a look and find the following questions.
+1.	Please only include subr_no start with #8
+2.	Roaming Data Package subr_no included in the report
+3.	No account manager and team head information
+4.	Can the report set to run last month record?
+5.	
+CASE_ID=>CUST_NUM	CUST_NUM=>SUBR_NUM	SUBR_NUM
+11774895	8100309	8100309_1278161383
+6.	No basic information, such as customer name, ID. Pls follow the template set out as attachment.
+
+
+v6:
+set ftp:ssl-protect-data true
+set ftp:ssl-force true
+set ssl:verify-certificate no
+
+lftp ftpsvc01 -u SMC/dw_ftp,dw000000 -p 2026
+etl06
+cd SMC/dw_ftp@ftpsvc01:
+"/world/TEAMWORK/CAD/Plan Code Summary/BM Bill Code Type v6"
+get "BM Bill Code Type v6.xls"
+pass:BMmktg
+
+no:
+uat done
+wait for mail
+/app/BILLIMG/reload/SMS_MMS
+Y_BM_SMS_COMM
+BILLIMG.BM_SMS_COMM_03_T append mth?
+
+
+--exec sp_trunctbl('BILLIMG.BM_SMS_COMM_05_T');
+--where tmpa.TRX_MTH = &trx_s_date;  06-07
+
+
+cognos report path:
+team content > users > finance > financial and management accounting > share > is_to_fin > to_jodie
+
+
+      and tmpc.L5M_NORMINATE_FLG = 'Y';
+
+cost check
+
+
+
+
+select distinct customer_number,subscriber_number from
+(select * from BILLIMG.V_DW_ETL_BILL_CALL_COGNOS where trunc(actual_bill_date,'month')=date '2020-08-01') a
+left join BILLIMG.V_AIRTM_BRKDN_REF b
+on a.BREAKDOWN_CODE = b.AIRTM_BRKDN_CD
+inner join VW_KPI_BR_LIST_DAILY_2T c
+on a.HKID_BR_PREFIX=c.HKID_BR_PREFIX
+where sms_flg='Y' or mms_flg='Y';
+
+
+wait for cost check 
+
+BILLIMG.BM_BILL_CODE_TYPE_REF
+
+
+
+
+
+
+
+
+
+

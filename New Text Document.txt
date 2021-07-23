@@ -1,0 +1,1 @@
+/opt/reload/script/dw_load_fwcdr_maprdb.sh

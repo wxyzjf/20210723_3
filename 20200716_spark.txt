@@ -1,0 +1,94 @@
+https://stackoverflow.com/questions/53325155/how-do-you-set-the-row-group-size-of-files-in-hdfs
+
+http://bigdatamr10.hksmartone.com:4041/
+http://bigdatamr10.hksmartone.com:4040/
+http://bigdatamr10.hksmartone.com:4042/
+
+phone link
+
+df -kh .
+
+min max integer 
+
+hadoop fs -cat /HDS_VOL_HIVE/miep/SMCIN_20200513_20200513072842_01_proc_2.gz|gzip -dc |Head
+
+mv /home/mapr/el/test /opt/tmp/
+
+/opt/tmp/
+
+
+df -kh. /opt/tmp if error
+
+[mapr@bigdatamr10 opt]$ cd 
+[mapr@bigdatamr10 ~]$ df -kh .  
+Filesystem             Size  Used Avail Use% Mounted on
+/dev/mapper/vg00-home  4.0G  609M  3.4G  15% /home
+
+spark-submit --master local --conf spark.sql.warehouse.dir=/opt/tmp/el/test/spark-warehouse 2.py
+
+block partition row group
+
+
+val outDF = spark
+.read.option("delimiter","\t")
+.option("header","true").csv(flatInput)
+.rdd
+.map(r => transformRow(r))
+.toDF
+
+outDF.write
+.option("compression","snappy")
+.parquet(flatOutput)
+
+
+
+val nestedDF = spark.read.json(nestedInput)
+nestedDF.write
+.option("compression","snappy")
+.parquet(nestedOutput)
+
+
+hadoop fs file cp
+
+
+
+
+
+
+
+hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar cat /HDS_VOL_TMP/test_el_par/part-00000-316f9dc5-3792-4b66-89cd-7a6c3153c68e-c000.gz.parquet | head -500
+
+
+hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/test_el_par/part-00000-316f9dc5-3792-4b66-89cd-7a6c3153c68e-c000.gz.parquet | head -500
+
+
+hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar dump -n /HDS_VOL_TMP/test_el_par/part-00000-316f9dc5-3792-4b66-89cd-7a6c3153c68e-c000.gz.parquet | head -500
+------------------------------------------------------------------------------------------------------------
+hdfs dfs -D dfs.block.size=67108864 -D parquet.block.size=67108864 -cp /new_sample_parquet /new_sample_parquet_64M
+
+hadoop fs -D parquet.block.size=268435456 -cp /HDS_VOL_TMP/test_el_par/part-00000-316f9dc5-3792-4b66-89cd-7a6c3153c68e-c000.gz.parquet /HDS_VOL_TMP/test_el_par1
+hadoop fs -D parquet.block.size=268435456 -cp /HDS_VOL_TMP/test_el_par /HDS_VOL_TMP/test_el_par2
+
+hadoop fs -D dfs.block.size=268435456 -cp /HDS_VOL_TMP/test_el_par/part-00000-316f9dc5-3792-4b66-89cd-7a6c3153c68e-c000.gz.parquet /HDS_VOL_TMP/test_el_par3
+
+
+256mb           ? 512mb
+268435456         536870912
+
+
+
+
+
+hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/test_el_par5 | grep "row group" | head -10
+
+
+
+
+
+hadoop jar /home/mapr/pq_tools/parquet-tools-1.9.0.jar meta /HDS_VOL_TMP/el_get_par/part-00000-960f12f2-fdd6-4536-a5b9-89be61ba5158-c000.gz.parquet | grep "row group" | head -10
+
+
+
+
+
+

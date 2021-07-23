@@ -1,0 +1,285 @@
+
+-------------------------------------------------------------------------------------
+[mapr@bigdatamr10 ba]$ cat parque.py
+from __future__ import print_function
+
+from pyspark.sql import SparkSession
+
+from pyspark import SparkContext,SparkConf
+
+from pyspark.sql import  Row
+
+from pyspark.sql.types import *
+
+from pyspark.sql.functions import *
+
+from datetime import datetime
+
+import math
+
+    
+conf = SparkConf().setAppName("Test App").setAll([('spark.executor.instances',13),('soark.executor.memory','3G'),('spark.executor.memoryOverhead','3G')])
+sc = SparkContext(conf=conf)
+
+def partitionF(key):
+    return key
+
+print(datetime.now())
+rdd = sc.textFile("/HDS_VOL_HIVE/FWCDR/start_date=20200627/*gz",use_unicode=False)
+fwcdr = rdd.map(lambda line : (int(line[8:11]),line))\
+        .repartitionAndSortWithinPartitions(255,lambda k : k%255, True)
+print(fwcdr.getNumPartitions())
+
+spark = SparkSession(sc)
+df = spark.createDataFrame(fwcdr)
+
+df.write.save("maprfs:///HDS_VOL_TMP/test_par_ba",mode='overwrite',compression='gzip')
+print(datetime.now())
+-------------------------------------------------------------------------------------
+[mapr@bigdatamr10 ba]$ cat parque3.py
+from __future__ import print_function
+
+from pyspark.sql import SparkSession
+
+from pyspark.sql import  Row
+
+from pyspark.sql.types import *
+
+from datetime import datetime
+
+def basic_df_example(spark):
+    
+    mySchema = StructType([
+                StructField("rowkey",StringType(), True),
+                StructField("ts",StringType(), True),
+                StructField("srcip",StringType(), True),
+                StructField("tagip",StringType(), True),
+                StructField("col5",StringType(), True)
+                ])
+    fwcdr = spark.read.schema(mySchema).csv("/HDS_VOL_HIVE/FWCDR/start_date=20200703/*.gz",sep='|')
+    fwcdr.createOrReplaceTempView("fwcdr")
+    spark.sql("select substr(rowkey,9,2) as partitionKey,count(1) from fwcdr group by substr(rowkey,9,2)").show(26)
+    
+
+
+spark = SparkSession \
+    .builder \
+    .appName("parque test") \
+    .config("spark.executor.memory","4G")\
+    .config('spark.executor.memoryOverhead','5G')\
+    .config('spark.executor.instances',12)\
+    .getOrCreate()
+print(datetime.now())
+basic_df_example(spark)
+print(datetime.now())
+-------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------
+
+
+
+
+-------------------------------------------------------------------------------------
+[mapr@bigdatamr10 ba]$ cat parquet2.py
+from __future__ import print_function
+
+from pyspark.sql import SparkSession
+
+from pyspark.sql import  Row
+
+from pyspark.sql.types import *
+
+from datetime import datetime
+
+def basic_df_example(spark):
+    
+    mySchema = StructType([
+                StructField("rowkey",StringType(), True),
+                StructField("ts",StringType(), True),
+                StructField("srcip",StringType(), True),
+                StructField("tagip",StringType(), True),
+                StructField("vol",StringType(), True)
+                ])
+    fwcdr = spark.read.schema(mySchema).csv("/HDS_VOL_HIVE/FWCDR/start_date=20200711/fwcdr_ldr_*_p1_*.gz",sep='|')
+    fwcdr.createOrReplaceTempView("fwcdr")
+    df = spark.sql("select int(substr(rowkey,9,3)/26) as pkey,ts,srcip,tagip,vol from fwcdr")\
+         .repartition(25,"pkey")\
+         .sortWithinPartitions("pkey","srcip").show(1)
+
+    df.repartition(1).write.save("maprfs:///HDS_VOL_TMP/test_par_ba/test_combine",mode='append',compression='gzip')
+
+spark = SparkSession \
+    .builder \
+    .appName("parque test") \
+    .config("spark.executor.memory","13G")\
+    .config('spark.driver.maxResultSize','4G')\
+    .config('spark.default.parallelism',15) \
+    .config('spark.executor.instances',25) \
+    .config('spark.driver.memory','4G') \
+    .getOrCreate()
+print(datetime.now())
+basic_df_example(spark)
+print(datetime.now())
+-------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------
+[mapr@bigdatamr10 ba]$ cat splitFile.py
+
+
+from pyspark.sql import SparkSession
+
+spark = SparkSession \
+    .builder \
+    .appName("slipt file") \
+    .config("spark.executor.memory","10G")\
+    .config('spark.executor.memoryOverhead','5G')\
+    .config('spark.executor.instances',15) \
+    .config('spark.debug.maxToStringFields',50)\
+    .getOrCreate()
+
+df= spark.read.csv("/HDS_VOL_HIVE/mall_ebm/4.tar.gz",sep=';',header='True') \
+        .repartition(10) \
+        .write.save("maprfs:///HDS_VOL_HIVE/mall_ebm/split_files",format='csv',compression='gzip',mode='append')
+-------------------------------------------------------------------------------------
+[mapr@bigdatamr10 ba]$ cat querypqTest.py
+from __future__ import print_function
+
+from pyspark.sql import SparkSession
+
+from pyspark.sql import  Row
+
+from pyspark.sql.types import *
+
+from datetime import datetime
+
+def basic_df_example(spark):
+    
+    mySchema = StructType([
+                StructField("pkey",StringType(), True),
+                StructField("rowkey",StringType(), True),
+                StructField("ts",StringType(), True),
+                StructField("srcip",StringType(), True),
+                StructField("tagip",StringType(), True),
+                StructField("col5",StringType(), True)
+                ])
+    fwcdr = spark.read.schema(mySchema).parquet("/HDS_VOL_TMP/test_par_ba/*.parquet")
+    fwcdr.createOrReplaceTempView("fwcdr")
+    spark.sql("select min(pkey) from fwcdr").show()
+
+
+spark = SparkSession \
+    .builder \
+    .appName("parque test") \
+    .config("spark.executor.memory","10G")\
+    .config('spark.executor.memoryOverhead','5G')\
+    .config('spark.executor.instances',10)\
+    .getOrCreate()
+print(datetime.now())
+basic_df_example(spark)
+print(datetime.now())
+-------------------------------------------------------------------------------------
+
+
+-------------------------------------------------------------------------------------
+
+
+
+
+
+-------------------------------------------------------------------------------------
+[mapr@bigdatamr10 ba]$ cat smcinJoin.py
+from pyspark.sql import SparkSession
+from pyspark.sql import  Row
+from pyspark.sql.types import *
+from datetime import datetime
+
+
+spark = SparkSession \
+    .builder \
+    .appName("mall lqs") \
+    .config("spark.executor.memory","8G")\
+    .config('spark.executor.memoryOverhead','4G')\
+    .config('spark.driver.memory','4G')\
+    .config('spark.executor.instances',15) \
+    .config('spark.debug.maxToStringFields',50)\
+    .getOrCreate()
+
+
+df= spark.read.csv("maprfs:///HDS_VOL_TMP/ba/unload_bp_s_reward_subr_list_SHK_Mall.dat.20200720",header=True, sep='|').cache()
+df.createOrReplaceTempView("subr_info")
+
+
+df2 = spark.read.csv("maprfs:///HDS_VOL_TMP/smcin/part_key=20200720/SMCIN*.gz", sep='\t')
+df2.createOrReplaceTempView("smcin")
+
+
+
+spark.sql("select /*+ BORADCAST(subr) */ smc.* from subr_info subr inner join smcin smc on subr.Subr_Num = smc._c0")\
+        .repartition(1) \
+        .write.save("maprfs:///HDS_VOL_TMP/ba/smcin", compression='gzip', format='csv',mode='append')
+
+
+-------------------------------------------------------------------------------------
+[mapr@bigdatamr10 ba]$ cat smcinsplit.py
+
+from pyspark.sql import SparkSession
+from pyspark.sql import  Row
+from pyspark.sql.types import *
+from datetime import datetime
+
+
+spark = SparkSession \
+    .builder \
+    .appName("smcin file split") \
+    .config("spark.executor.memory","10G")\
+    .config('spark.executor.memoryOverhead','5G')\
+    .config('spark.executor.instances',15) \
+    .config('spark.debug.maxToStringFields',50)\
+    .getOrCreate()
+
+
+
+df2 = spark.read.csv("maprfs:///HDS_VOL_TMP/smcin/part_key=20200720/SMCIN_20200720_20200720145019_01_proc_1.gz", sep='\t')\
+        .repartition(3) \
+        .write.save("maprfs:///HDS_VOL_TMP/smcin_split", compression='gzip', format='csv',mode='append')
+-------------------------------------------------------------------------------------
+Jul 23
+-------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

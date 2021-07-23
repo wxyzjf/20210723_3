@@ -1,0 +1,23 @@
+
+
+1.update datastage > add col to load test file
+
+2.alter table add col 
+
+3.
+update prd_ADW.SA_HPP_SALES_LEAD_HIST a
+set a.SERVICE_TYPE = 
+(select tmp.SERVICE_TYPE from MIG_ADW.D_SA_HPP_SALES_LEAD_HIST tmp where a.CASE_ID = tmp.CASE_ID)
+where A.END_DATE=to_date('29991231','yyyymmdd')
+
+4.rerun that day 
+
+5.update view
+
+
+
+
+
+
+
+

@@ -1,0 +1,192 @@
+
+Step 1) get files from bigdataetl01
+Step 2) sftp hdsbat@bigdataetl02-10g . 
+            *password refer to login account  Smart2020
+            *file put to /app/HDSDATA
+Step 3) Spark script write /app/HDSBAT output to /app/HDSDATA/SPK_OUTPUT
+
+
+Spark in /opt/spark . local tmp set to /app/HDSDATA/SPK_LOCAL_TMP .You may test the max capacity for your case.
+
+------------------------------------------------------------
+
+ps -ef|grep java 
+240g
+
+free -g
+ cat /app/HDSBAT/eloisewu/log.txt|grep Mem|sed -e 's/ \+/\|/gp'
+------------------------------------------------
+bigdataetl01 smcin_convert.pl
+    pls refer /app/HDSBAT/reload/alter_location.sql
+
+------------------------------------------------
+
+------------------------------------------------
+sftp hdsbat@bigdataetl02-10g .
+Smart2020
+Smartoneeloisewu20200713
+
+
+------------------------------------------------
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+df=pd.read_csv("/app/HDSBAT/eloisewu/mem.log",sep='|',header=None)
+#print(df)
+y_list_mem=df[2].to_list()
+#print (y_list_mem)
+
+x_list=range(0,len(y_list_mem))
+plt.rcParams["figure.figsize"] = (8, 8)
+
+plt.title("Interactive Plot")
+plt.xlabel("Cnt")
+plt.ylabel("MEM used")
+
+plt.plot(x_list,y_list_mem,label='mem')
+ 
+plt.show()
+
+------------------------------------------------
+alter table h_fw_el add if not exists partition (trx_date=20200723,pkey=0);
+ALTER TABLE h_fw_el PARTITION (trx_date=20200723,pkey=0) SET LOCATION 'maprfs:///HDS_VOL_TMP/el_oneday/bigdataetl02/trx_date=20200723/pkey=0';
+-----------------------------------------------------------------
+CREATE TABLE `h_fw_pq`(
+   `srcip_3rd` int,
+   `srcip_num` BIGINT,
+   `ts` string,    
+   `srcip` string,    
+   `dstip` string,    
+   `send_vol` string,   
+   `recv_vol` string,    
+   `srv` string)
+PARTITIONED BY (
+  trx_date string,
+  pkey string
+)
+ROW FORMAT SERDE
+  'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+STORED AS INPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'
+OUTPUTFORMAT
+  'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'
+LOCATION
+  'maprfs:/HDS_VOL_HIVE/FWCDR_PQ'
+TBLPROPERTIES (   'parquet.compress'='gzip',    'transient_lastDdlTime'='1594364418');
+
+
+-----------------------------------------------------------------
+        echo "alter table h_ctr_cdr add if not exists partition (trx_date='$part_time',event_id='$event_id'); " >>${TMPDIR}/dw_load_ctr_cdr.sql
+        echo "load data LOCAL inpath '${CTRDIR}/${cvt_file_name}' into table h_ctr_cdr partition(trx_date='$part_time',event_id='$event_id');" >>${TMPDIR}/dw_load_ctr_cdr.sql
+
+-----------------------------------------------------------------
+
+hadoop jar /home/hdsbat/parquet-tools-1.11.0.jar meta  file:///app/HDSDATA/SPK_OUTPUT/start=20200724/pkey=10/part-00022-f93ec697-8fa0-4ed2-aec6-46bd589204a3.c000.gz.parquet  
+
+parquet tools is available in bigdataetl02 now
+   
+spark history server : http://bigdataetl02:18080/
+-----------------------------------------------------------------
+df -h = df -kh
+df -kh .
+df -h  /opt/tmp
+du -sh /opt/tmp 
+
+df -kh *
+du -sh *
+cd hadoop/
+set -o vi
+s
+/opt/mapr
+
+ hadoop/
+
+ cd log 
+cd logs 
+
+
+head  yarn-mapr-resourcemanager-bigdatamr08.hksmartone.com.out.1
+
+
+tail yarn-mapr-resourcemanager-bigdatamr08.hksmartone.com.out.1
+
+cat /dev/null > yarn-mapr-resourcemanager-bigdatamr08.hksmartone.com.out
+cat /dev/null > yarn-mapr-resourcemanager-bigdatamr08.hksmartone.com.out.1
+
+ cd /opt/maprtmp/
+
+-----------------------------------------------------------------
+conf = SparkConf().setAppName("fwcdr_256").setAll([('spark.executor.memory','240G'),\
+                                                   ('spark.driver.maxResultSize','4G'),\
+                                                   ('spark.driver.memory','240G'),\
+                                                   ('spark.sql.shuffle.partitions',100),\
+                                                   ('spark.default.parallelism',100),\
+                                                   ('spark.eventLog.dir','/app/HDSDATA/SPK_HS_LOG/'),\
+                                                   ('spark.executor.cores','30')\
+
+
+-----------------------------------------------------------------
+spark-submit --driver-memory=240G --executor-memory=240G --executor-cores=30 --conf spark.eventLog.dir=/app/HDSDATA/SPK_HS_LOG/ t_256.py
+-----------------------------------------------------------------
+spark-submit --driver-memory=240G --executor-memory=240G --executor-cores=30 t_256.py
+executor-cores=40 = parlism
+-----------------------------------------------------------------
+#t_start    part2  sort partitionBy
+#t_start_2  repartiton pkey   partitionBy pkey
+#t_start_3  repartiton pkey   out 125file   in 74file  sql.shuffle.partitions 150 default.parallelism 150
+#start    repartiton pkey  sort partitionBy
+
+
+-----------------------------------------------------------------
+hadoop fs -du -h /var/mapr/local/*/spark/*
+-----------------------------------------------------------------
+http://bigdatamr09:8088/cluster
+-----------------------------------------------------------------
+SET hive.exec.compress.output=true;
+SET mapred.output.compress=true;
+SET mapred.output.compression.codec=org.apache.hadoop.io.compress.GzipCodec
+-----------------------------------------------------------------
+SET mapred.job.queue.name=group_mapr;
+
+-----------------------------------------------------------------
+https://webcache.googleusercontent.com/search?q=cache:WcSx7poWv1gJ:https://www.liaoxuefeng.com/wiki/1016959663602400/1017648783851616+&cd=1&hl=zh-CN&ct=clnk&gl=hk
+-----------------------------------------------------------------
+alter table h_fw_el_tmp rename to h_fw_el;
+-----------------------------------------------------------------
+
+hadoop distcp /HDS_VOL_HIVE/FWCDR/start_date=2020072* maprfs://bigdatamr08-10g.hksmartone.com/HDS_VOL_HIVE/FWCDR
+
+-----------------------------------------------------------------
+create view VW_H_FW_PQ (
+  trx_date,
+  pkey,
+  srcip_3rd,
+  srcip_num,
+  ts,
+  srcip,
+  dstip,
+  send_vol,
+  recv_vol,
+  srv
+) as
+SELECT
+  substr(`t`.dir0,10) as trx_date,
+  substr(`t`.dir1,6) as pkey,
+  `t`.`srcip_3rd`,
+  `t`.`srcip_num`,
+  `t`.`ts`,
+  `t`.`srcip`,
+  `t`.`dstip`,
+  `t`.`send_vol`,
+  `t`.`recv_vol`,
+  `t`.`srv`
+FROM `dfs`.`/HDS_VOL_HIVE/FWCDR_PQ` AS `t`;
+
+-----------------------------------------------------------------
+pyspark script handle datetime:::
+https://webcache.googleusercontent.com/search?q=cache:WcSx7poWv1gJ:https://www.liaoxuefeng.com/wiki/1016959663602400/1017648783851616+&cd=1&hl=zh-CN&ct=clnk&gl=hk
+
+
+-----------------------------------------------------------------
+
